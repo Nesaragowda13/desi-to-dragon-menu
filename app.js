@@ -354,9 +354,20 @@ function handleCheckoutSubmit(e) {
   ordersList.unshift(order);
   localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(ordersList));
 
-  // Broadcast to Owner Admin Dashboard
+  // Broadcast via Local BroadcastChannel (for same device tabs)
   if (syncChannel) {
     syncChannel.postMessage({ type: 'NEW_ORDER', order: order });
+  }
+
+  // 🌐 Send Order to Cloud Realtime Endpoint (Reaches Owner Dashboard on ANY device/network)
+  try {
+    fetch('https://ntfy.sh/desi_to_dragon_orders_2026', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'NEW_ORDER', order: order })
+    }).catch(err => console.log('Cloud sync error:', err));
+  } catch (err) {
+    console.log('Cloud fetch exception:', err);
   }
 
   // Clear Cart & Close Drawer

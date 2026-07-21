@@ -214,7 +214,7 @@ function saveOrders() {
 }
 
 function setupBroadcastListener() {
-  // Listen via BroadcastChannel
+  // Listen via BroadcastChannel (for same device)
   if (syncChannel) {
     syncChannel.onmessage = (event) => {
       if (event.data.type === 'NEW_ORDER') {
@@ -227,6 +227,35 @@ function setupBroadcastListener() {
         renderAdminUI();
       }
     };
+  }
+
+  // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
+  try {
+    const cloudEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_orders_2026/json');
+    cloudEventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload && payload.message) {
+          const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+          if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
+            const newOrder = orderMsg.order;
+            
+            // Avoid duplicate additions
+            if (!adminState.orders.some(o => o.id === newOrder.id)) {
+              adminState.orders.unshift(newOrder);
+              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
+              playOrderChimeSound();
+              showToast(`🔔 New Cloud Order from ${newOrder.customerName} (Table ${newOrder.tableNumber})!`);
+              renderAdminUI();
+            }
+          }
+        }
+      } catch (err) {
+        console.log('Error parsing cloud event:', err);
+      }
+    };
+  } catch (err) {
+    console.log('EventSource error:', err);
   }
 
   // Listen via LocalStorage Storage Event
