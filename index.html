@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desi to Dragon | Crafted Cuisine Potluck Menu</title>
+  <meta name="description" content="Official interactive menu card and potluck planner for Desi to Dragon - Crafted Cuisine. Experience the ultimate fusion of bold Desi spices & fierce dragon flavors!">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- BACKGROUND EMBER & DRAGON SHAPES -->
+  <div class="bg-shape shape-fire1"></div>
+  <div class="bg-shape shape-fire2"></div>
+  <div class="bg-shape shape-ember"></div>
+
+  <div class="app-container">
+    <!-- TOP NAVIGATION / ACTIONS -->
+    <header class="top-nav print-hide">
+      <div class="brand-badge-wrap">
+        <img src="assets/desi_to_dragon_logo.jpg" alt="Desi to Dragon Logo" class="nav-logo">
+        <div class="brand-text-block">
+          <span class="brand-title">DESI TO DRAGON</span>
+          <span class="brand-sub">CRAFTED CUISINE</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="shareBtn" class="btn btn-secondary" title="Share Menu">
+          <i data-lucide="share-2"></i>
+          <span>Share Link</span>
+        </button>
+        <button id="printBtn" class="btn btn-secondary" title="Print Menu Card">
+          <i data-lucide="printer"></i>
+          <span>Print Menu Card</span>
+        </button>
+        <button id="openAddDishModalBtn" class="btn btn-primary">
+          <i data-lucide="flame"></i>
+          <span>Add a Dish</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO BANNER WITH EMBEDDED LOGO -->
+    <section class="hero-card">
+      <div class="hero-layout">
+        <div class="hero-logo-frame">
+          <img src="assets/desi_to_dragon_logo.jpg" alt="Desi to Dragon Crafted Cuisine Logo" class="hero-logo-img">
+          <div class="logo-glow-ring"></div>
+        </div>
+        
+        <div class="hero-content">
+          <div class="hero-tag">
+            <i data-lucide="flame" style="color:#ef4444;"></i>
+            <span>Desi Spices Meets Fiery Dragon Flavors</span>
+          </div>
+          <h1 class="hero-title">Desi to <span class="accent-gold">Dragon</span> <span class="sub-hero-title">Potluck 2026</span></h1>
+          <p class="hero-subtitle">Where traditional Indian herbs and clay-oven tandoor magic ignite with fiery Indo-Chinese wok creations! Explore the menu, filter spice levels, or bring your signature dish.</p>
+          
+          <div class="event-meta-grid">
+            <div class="meta-item">
+              <div class="meta-icon"><i data-lucide="calendar"></i></div>
+              <div class="meta-info">
+                <span class="meta-label">Date & Time</span>
+                <span class="meta-val">Saturday, Aug 15 • 7:00 PM</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i data-lucide="map-pin"></i></div>
+              <div class="meta-info">
+                <span class="meta-label">Feast Venue</span>
+                <span class="meta-val">Dragon Pavilion Grand Hall</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i data-lucide="crown"></i></div>
+              <div class="meta-info">
+                <span class="meta-label">Event Host</span>
+                <span class="meta-val">Desi to Dragon Chefs</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i data-lucide="sparkles"></i></div>
+              <div class="meta-info">
+                <span class="meta-label">Theme</span>
+                <span class="meta-val">Desi & Dragon Fusion</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS DASHBOARD -->
+    <section class="stats-grid print-hide">
+      <div class="stat-card">
+        <div class="stat-icon icon-gold"><i data-lucide="utensils"></i></div>
+        <div class="stat-data">
+          <span class="stat-number" id="totalDishesCount">0</span>
+          <span class="stat-label">Total Creations</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-green"><i data-lucide="leaf"></i></div>
+        <div class="stat-data">
+          <span class="stat-number" id="vegCount">0</span>
+          <span class="stat-label">Desi Veg & Vegan</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-red"><i data-lucide="flame"></i></div>
+        <div class="stat-data">
+          <span class="stat-number" id="nonVegCount">0</span>
+          <span class="stat-label">Dragon Meat Delights</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-copper"><i data-lucide="users"></i></div>
+        <div class="stat-data">
+          <span class="stat-number" id="contributorsCount">0</span>
+          <span class="stat-label">Master Chefs</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTER & SEARCH BAR -->
+    <section class="filter-section print-hide">
+      <div class="search-box">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search Schezwan, Tandoori, Manchurian, contributor, or ingredient..." autocomplete="off">
+        <button id="clearSearchBtn" class="clear-search hidden"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="filter-groups">
+        <div class="category-tabs" id="categoryTabs">
+          <button class="tab-btn active" data-category="all">
+            <i data-lucide="grid"></i> All Dishes
+          </button>
+          <button class="tab-btn" data-category="Starters">
+            <i data-lucide="soup"></i> Starters & Dragon Bites
+          </button>
+          <button class="tab-btn" data-category="Mains">
+            <i data-lucide="flame"></i> Fiery Main Course
+          </button>
+          <button class="tab-btn" data-category="Rice & Noodles">
+            <i data-lucide="utensils-crossed"></i> Noodles, Rice & Breads
+          </button>
+          <button class="tab-btn" data-category="Desserts">
+            <i data-lucide="cake-slice"></i> Dragon Desserts
+          </button>
+          <button class="tab-btn" data-category="Drinks">
+            <i data-lucide="glass-water"></i> Elixirs & Drinks
+          </button>
+        </div>
+
+        <div class="dietary-filters" id="dietaryFilters">
+          <span class="filter-label">Filter By:</span>
+          <button class="tag-chip active" data-diet="all">All</button>
+          <button class="tag-chip chip-veg" data-diet="veg">🟢 Pure Veg</button>
+          <button class="tag-chip chip-vegan" data-diet="vegan">🌱 Vegan</button>
+          <button class="tag-chip chip-fusion" data-diet="fusion">🐉 Dragon Fusion</button>
+          <button class="tag-chip chip-nonveg" data-diet="non-veg">🔴 Non-Veg</button>
+          <button class="tag-chip chip-gf" data-diet="gf">🌾 Gluten Free</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRINT HEADER (VISIBLE ONLY IN PRINT) -->
+    <div class="print-header print-only">
+      <div class="print-logo-row">
+        <img src="assets/desi_to_dragon_logo.jpg" alt="Desi to Dragon Logo" class="print-logo">
+        <div>
+          <h1>DESI TO DRAGON</h1>
+          <h2>CRAFTED CUISINE - POTLUCK MENU 2026</h2>
+          <p>Saturday, August 15, 2026 • 7:00 PM • Dragon Pavilion Grand Hall</p>
+        </div>
+      </div>
+      <hr class="print-divider">
+    </div>
+
+    <!-- MAIN MENU DISPLAY -->
+    <main class="menu-display" id="menuDisplay">
+      <!-- Dynamic categories and cards rendered via JS -->
+    </main>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon"><i data-lucide="flame-kindling"></i></div>
+      <h3>No dragon dishes match your filter</h3>
+      <p>Try resetting your search query or dietary filters, or add your signature dish!</p>
+      <button class="btn btn-primary" onclick="resetFilters()">Reset All Filters</button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="footer-mini-logo">
+        <p>🐉 <strong>DESI TO DRAGON</strong> • Crafted Cuisine Potluck 2026 🐉</p>
+        <p class="sub-footer print-hide">Allergies or spice preference concerns? Please let your chef host know in the dish description!</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ADD DISH MODAL -->
+  <div id="addDishModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="modal-brand-logo">
+          <div>
+            <h2 id="modalTitle">Add a Dish to Desi to Dragon</h2>
+            <p class="modal-sub">Sign up your favorite home recipe or fiery fusion creation!</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="close-btn" aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="dishForm" class="modal-form">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="dishName">Dish Name <span class="req">*</span></label>
+            <input type="text" id="dishName" required placeholder="e.g. Schezwan Paneer Tikka, Fiery Dragon Wings, Hakka Noodles..." autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label for="contributor">Chef / Contributor Name <span class="req">*</span></label>
+            <input type="text" id="contributor" required placeholder="e.g. Chef Rahul, Patel Family..." autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category <span class="req">*</span></label>
+            <select id="category" required>
+              <option value="Starters">Starters & Dragon Bites</option>
+              <option value="Mains" selected>Fiery Main Course</option>
+              <option value="Rice & Noodles">Noodles, Rice & Breads</option>
+              <option value="Desserts">Dragon Desserts</option>
+              <option value="Drinks">Elixirs & Beverages</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dietary">Dietary Type <span class="req">*</span></label>
+            <select id="dietary" required>
+              <option value="veg">🟢 Pure Vegetarian</option>
+              <option value="vegan">🌱 Vegan</option>
+              <option value="non-veg">🔴 Non-Vegetarian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fusionType">Cuisine Style <span class="req">*</span></label>
+            <select id="fusionType" required>
+              <option value="fusion">🐉 Dragon Indo-Chinese Fusion</option>
+              <option value="desi">🇮🇳 Classic Desi Indian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="servings">Portion / Serves <span class="req">*</span></label>
+            <input type="text" id="servings" placeholder="e.g. 6-8 people, 12 pieces..." defaultValue="6-8 people">
+          </div>
+
+          <div class="form-group">
+            <label for="spiceLevel">Dragon Spice Meter <span class="req">*</span></label>
+            <select id="spiceLevel">
+              <option value="0">Mild / Mild Sweet</option>
+              <option value="1" selected>🌶️ Medium Spicy</option>
+              <option value="2">🌶️🌶️ Dragon Hot</option>
+              <option value="3">🔥🔥🔥 Fiery Inferno</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="isGlutenFree">Gluten-Free?</label>
+            <select id="isGlutenFree">
+              <option value="no">No</option>
+              <option value="yes">Yes (🌾 Gluten Free)</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="description">Key Ingredients & Tasting Notes</label>
+            <textarea id="description" rows="2" placeholder="e.g. Wok-tossed in Schezwan red garlic sauce, garnished with spring onions & toasted sesame..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelModalBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="flame"></i>
+            <span>Add to Dragon Menu</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast hidden">
+    <i data-lucide="flame" class="toast-icon"></i>
+    <span id="toastMsg">Action completed successfully</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
