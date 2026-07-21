@@ -5,6 +5,32 @@
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
   {
+    id: "dish-pre-1",
+    name: "📅 Grand Dragon Peking Roast Feast",
+    price: 1450,
+    category: "Pre-Order Specials",
+    dietary: "non-veg",
+    fusionType: "fusion",
+    servings: "Serves 4-6",
+    spiceLevel: "2",
+    isGlutenFree: "no",
+    isSoldOut: false,
+    description: "24-hour slow-marinated roasted feast with scallion pancakes & sweet bean hoisin glaze. Requires advance pre-order & online payment."
+  },
+  {
+    id: "dish-pre-2",
+    name: "📅 Royal Dum Pukht Lamb Raan Feast",
+    price: 1890,
+    category: "Pre-Order Specials",
+    dietary: "non-veg",
+    fusionType: "desi",
+    servings: "Serves 6-8",
+    spiceLevel: "3",
+    isGlutenFree: "yes",
+    isSoldOut: false,
+    description: "Slow dum-cooked whole leg of lamb infused with saffron, star anise, and Kashmiri mawa gravy. Requires advance pre-order & online payment."
+  },
+  {
     id: "dish-1",
     name: "Schezwan Paneer Tikka",
     price: 280,
@@ -436,8 +462,41 @@ function setupEventListeners() {
     renderApp();
   });
 
+  // Pre-Order Order Timing & Payment Toggle Listener
+  const orderTypeSelect = document.getElementById('orderType');
+  const preOrderTimeGroup = document.getElementById('preOrderTimeGroup');
+  const preOrderDateTimeInput = document.getElementById('preOrderDateTime');
+  const paymentMethodSelect = document.getElementById('paymentMethod');
+  const cashPayOption = document.getElementById('cashPayOption');
+
+  if (orderTypeSelect) {
+    orderTypeSelect.addEventListener('change', (e) => {
+      const isPreOrder = e.target.value === 'preorder';
+      if (preOrderTimeGroup) preOrderTimeGroup.classList.toggle('hidden', !isPreOrder);
+
+      if (isPreOrder) {
+        if (preOrderDateTimeInput) preOrderDateTimeInput.required = true;
+        paymentMethodSelect.value = 'upi';
+        if (cashPayOption) cashPayOption.disabled = true;
+        showToast('ℹ️ Pre-Orders require mandatory online UPI payment advance.');
+      } else {
+        if (preOrderDateTimeInput) preOrderDateTimeInput.required = false;
+        if (cashPayOption) cashPayOption.disabled = false;
+      }
+    });
+  }
+
   // Cart Drawer Events
   const openCart = () => {
+    // Auto-detect if cart contains pre-order items
+    const hasPreOrderItems = potluckState.cart.some(item => item.category === 'Pre-Order Specials' || item.name.includes('📅'));
+    if (hasPreOrderItems && orderTypeSelect) {
+      orderTypeSelect.value = 'preorder';
+      if (preOrderTimeGroup) preOrderTimeGroup.classList.remove('hidden');
+      if (preOrderDateTimeInput) preOrderDateTimeInput.required = true;
+      paymentMethodSelect.value = 'upi';
+      if (cashPayOption) cashPayOption.disabled = true;
+    }
     renderCartDrawer();
     cartDrawerModal.classList.remove('hidden');
   };
@@ -490,7 +549,19 @@ function handleCheckoutSubmit(e) {
 
   const name = document.getElementById('customerName').value.trim();
   const email = document.getElementById('customerEmail').value.trim();
+  const orderType = document.getElementById('orderType') ? document.getElementById('orderType').value : 'dinein';
+  const preOrderDateTime = document.getElementById('preOrderDateTime') ? document.getElementById('preOrderDateTime').value : '';
   const payment = document.getElementById('paymentMethod').value;
+
+  if (orderType === 'preorder' && !preOrderDateTime) {
+    alert('Please select a valid Pre-Order Date & Time for advance preparation!');
+    return;
+  }
+
+  if (orderType === 'preorder' && payment !== 'upi') {
+    alert('Pre-orders require online UPI payment advance!');
+    return;
+  }
 
   const totalAmt = potluckState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
@@ -498,6 +569,8 @@ function handleCheckoutSubmit(e) {
     id: 'ORD-' + Date.now(),
     customerName: name,
     email: email,
+    orderType: orderType,
+    preOrderDateTime: orderType === 'preorder' ? preOrderDateTime : null,
     paymentMethod: payment,
     items: JSON.parse(JSON.stringify(potluckState.cart)),
     totalAmount: totalAmt,

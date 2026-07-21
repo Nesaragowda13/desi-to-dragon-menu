@@ -503,6 +503,12 @@ function renderOrdersGrid() {
             <span class="customer-name">👤 ${escapeHTML(order.customerName)}</span>
           </div>
           <div class="customer-sub">📧 ${escapeHTML(order.email || 'N/A')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay Counter/Table'}</div>
+          ${order.orderType === 'preorder' ? `
+            <div style="background:rgba(251,191,36,0.18);border:1px solid var(--primary-gold);color:var(--primary-gold);padding:4px 8px;border-radius:4px;font-size:0.78rem;font-weight:800;margin-top:6px;display:flex;align-items:center;gap:4px;">
+              <span>📅 ADVANCE PRE-ORDER:</span>
+              <span>${order.preOrderDateTime ? new Date(order.preOrderDateTime).toLocaleString([], { dateStyle:'medium', timeStyle:'short' }) : 'Scheduled Date'}</span>
+            </div>
+          ` : ''}
         </div>
 
         <div class="order-items-list">
