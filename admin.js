@@ -136,10 +136,11 @@ const INITIAL_DISHES = [
   }
 ];
 
-// Admin State
-let adminState = {
-  orders: [],
+// Admin Application State
+const adminState = {
   dishes: [],
+  orders: [],
+  orderFilter: 'active', // 'active' or 'completed'
   activeTab: 'orders'
 };
 
@@ -372,6 +373,16 @@ function setupEventListeners() {
     });
   }
 
+  // Sub-Tab Switcher (Active vs Completed Orders)
+  document.querySelectorAll('[data-order-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-order-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      adminState.orderFilter = btn.dataset.orderFilter;
+      renderAdminUI();
+    });
+  });
+
   // Restore Default Menu
   restoreDefaultMenuBtn.addEventListener('click', () => {
     if (confirm('Restore default menu items and prices?')) {
@@ -385,7 +396,7 @@ function setupEventListeners() {
   // Clear Completed Orders
   clearCompletedOrdersBtn.addEventListener('click', () => {
     if (confirm('Clear completed and cancelled orders from history?')) {
-      adminState.orders = adminState.orders.filter(o => o.status === 'pending' || o.status === 'preparing');
+      adminState.orders = adminState.orders.filter(o => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready');
       saveOrders();
       showToast('Completed orders cleared.');
       renderAdminUI();
@@ -426,23 +437,40 @@ function renderAdminUI() {
 }
 
 function updateAdminStats() {
+  const activeCount = adminState.orders.filter(o => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready').length;
+  const completedCount = adminState.orders.filter(o => o.status === 'completed' || o.status === 'cancelled').length;
+
   const pending = adminState.orders.filter(o => o.status === 'pending').length;
   const preparing = adminState.orders.filter(o => o.status === 'preparing').length;
   const completed = adminState.orders.filter(o => o.status === 'completed').length;
   const totalRev = adminState.orders
-    .filter(o => o.status === 'completed' || o.status === 'preparing' || o.status === 'pending')
+    .filter(o => o.status === 'completed' || o.status === 'preparing' || o.status === 'pending' || o.status === 'ready')
     .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   pendingOrdersCount.textContent = pending;
   preparingOrdersCount.textContent = preparing;
   completedOrdersCount.textContent = completed;
   totalRevenueCount.textContent = '₹' + totalRev.toLocaleString('en-IN');
-  liveOrdersBadge.textContent = pending + preparing;
+  liveOrdersBadge.textContent = activeCount;
+
+  const activeBadge = document.getElementById('activeOrdersBadge');
+  const completedBadge = document.getElementById('completedOrdersBadge');
+  if (activeBadge) activeBadge.textContent = activeCount;
+  if (completedBadge) completedBadge.textContent = completedCount;
 }
 
 // Render Orders Feed
 function renderOrdersGrid() {
-  if (adminState.orders.length === 0) {
+  const isFilterActive = adminState.orderFilter === 'active';
+  const filteredOrders = adminState.orders.filter(order => {
+    if (isFilterActive) {
+      return order.status === 'pending' || order.status === 'preparing' || order.status === 'ready';
+    } else {
+      return order.status === 'completed' || order.status === 'cancelled';
+    }
+  });
+
+  if (filteredOrders.length === 0) {
     liveOrdersGrid.innerHTML = '';
     emptyOrdersState.classList.remove('hidden');
     return;
@@ -450,7 +478,7 @@ function renderOrdersGrid() {
 
   emptyOrdersState.classList.add('hidden');
 
-  liveOrdersGrid.innerHTML = adminState.orders.map(order => {
+  liveOrdersGrid.innerHTML = filteredOrders.map(order => {
     const dateStr = new Date(order.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
     let statusClass = 'status-pending';

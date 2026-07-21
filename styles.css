@@ -2276,6 +2276,59 @@ body {
   box-shadow: 0 0 40px rgba(251, 191, 36, 0.4) !important;
 }
 
+/* ORDER SUB TABS (ACTIVE VS COMPLETED) */
+.order-sub-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(15, 10, 6, 0.6);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.order-sub-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.order-sub-tab:hover {
+  color: var(--text-primary);
+  background: rgba(38, 29, 21, 0.5);
+}
+
+.order-sub-tab.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(245, 158, 11, 0.25));
+  color: var(--primary-gold);
+  border: 1px solid var(--primary-gold);
+}
+
+.sub-badge {
+  background: var(--bg-card);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.order-sub-tab.active .sub-badge {
+  background: var(--primary-gold);
+  color: #0c0906;
+}
+
+
 
 
 
