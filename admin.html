@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desi to Dragon | Owner Admin Dashboard</title>
+  <meta name="description" content="Official owner management dashboard for Desi to Dragon - Live orders feed and menu stock control.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-body">
+
+  <!-- BACKGROUND EMBERS -->
+  <div class="bg-shape shape-fire1"></div>
+  <div class="bg-shape shape-fire2"></div>
+
+  <div class="app-container admin-container">
+    
+    <!-- ADMIN TOP NAVIGATION -->
+    <header class="top-nav admin-nav">
+      <div class="brand-badge-wrap">
+        <img src="assets/desi_to_dragon_logo.jpg" alt="Desi to Dragon Logo" class="nav-logo">
+        <div class="brand-text-block">
+          <span class="brand-title">DESI TO DRAGON</span>
+          <span class="brand-sub">OWNER ADMIN DASHBOARD</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="index.html" target="_blank" class="btn btn-secondary" title="View Customer Menu">
+          <i data-lucide="external-link"></i>
+          <span>Customer Menu</span>
+        </a>
+        <button id="adminQrBtn" class="btn btn-secondary" title="View Table QR Code">
+          <i data-lucide="qr-code"></i>
+          <span>Table QR Standee</span>
+        </button>
+        <button id="adminAddDishBtn" class="btn btn-primary">
+          <i data-lucide="plus-circle"></i>
+          <span>Add New Menu Item</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ADMIN HERO & SUMMARY STATS -->
+    <section class="admin-hero">
+      <div class="admin-hero-content">
+        <div class="hero-tag">
+          <i data-lucide="shield-check" style="color:var(--primary-gold);"></i>
+          <span>Live Kitchen & Menu Operations</span>
+        </div>
+        <h1 class="hero-title">Restaurant <span class="accent-gold">Control Center</span></h1>
+        <p class="hero-subtitle">Receive live customer orders by name & table number, track order statuses, and manage menu stock availability in real-time.</p>
+      </div>
+
+      <div class="admin-stats-row">
+        <div class="stat-card">
+          <div class="stat-icon icon-gold"><i data-lucide="bell"></i></div>
+          <div class="stat-data">
+            <span class="stat-number" id="pendingOrdersCount">0</span>
+            <span class="stat-label">Pending Orders</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber"><i data-lucide="flame"></i></div>
+          <div class="stat-data">
+            <span class="stat-number" id="preparingOrdersCount">0</span>
+            <span class="stat-label">Cooking in Wok</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-green"><i data-lucide="check-circle-2"></i></div>
+          <div class="stat-data">
+            <span class="stat-number" id="completedOrdersCount">0</span>
+            <span class="stat-label">Served Orders</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-red"><i data-lucide="indian-rupee"></i></div>
+          <div class="stat-data">
+            <span class="stat-number" id="totalRevenueCount">₹0</span>
+            <span class="stat-label">Total Revenue</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN NAVIGATION TABS -->
+    <section class="admin-tabs-section">
+      <div class="admin-tab-buttons">
+        <button class="admin-tab-btn active" data-tab="orders">
+          <i data-lucide="shopping-bag"></i>
+          <span>Live Customer Orders</span>
+          <span class="badge-count" id="liveOrdersBadge">0</span>
+        </button>
+        <button class="admin-tab-btn" data-tab="menu">
+          <i data-lucide="utensils"></i>
+          <span>Menu & Stock Manager</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 1: LIVE ORDERS FEED -->
+    <section id="ordersTabContent" class="admin-tab-content">
+      <div class="orders-header-row">
+        <h2><i data-lucide="bell" style="color:var(--primary-gold);"></i> Incoming Customer Orders</h2>
+        <button id="clearCompletedOrdersBtn" class="btn btn-secondary btn-sm">
+          <i data-lucide="trash-2"></i>
+          <span>Clear Completed Orders</span>
+        </button>
+      </div>
+
+      <div id="liveOrdersGrid" class="orders-grid">
+        <!-- Live order cards rendered via JS -->
+      </div>
+
+      <div id="emptyOrdersState" class="empty-state hidden">
+        <div class="empty-icon"><i data-lucide="check-check"></i></div>
+        <h3>No active customer orders</h3>
+        <p>New orders submitted by customers via QR code will appear here automatically with a chime notification!</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: MENU & STOCK MANAGER -->
+    <section id="menuTabContent" class="admin-tab-content hidden">
+      <div class="menu-manager-header">
+        <h2><i data-lucide="edit-3" style="color:var(--primary-gold);"></i> Menu Stock & Availability Manager</h2>
+        <div class="menu-manager-actions">
+          <input type="text" id="adminMenuSearch" placeholder="Search menu items..." autocomplete="off">
+          <button id="restoreDefaultMenuBtn" class="btn btn-secondary btn-sm">
+            <i data-lucide="rotate-ccw"></i>
+            <span>Restore Default Menu</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-menu-table-wrap">
+        <table class="admin-menu-table">
+          <thead>
+            <tr>
+              <th>Dish Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Spice Level</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminMenuTableBody">
+            <!-- Menu items rows rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p>🐉 <strong>DESI TO DRAGON OWNER DASHBOARD</strong> • Live Kitchen Control 🐉</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- TABLE QR STANDEE MODAL -->
+  <div id="tableQrModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card qr-standee-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="modal-brand-logo">
+          <div>
+            <h2>Customer Menu QR Standee</h2>
+            <p class="modal-sub">Display on tables for customers to scan & order</p>
+          </div>
+        </div>
+        <button id="closeQrModalBtn" class="close-btn"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="qr-standee-body">
+        <div class="qr-poster-preview">
+          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="qr-poster-logo">
+          <h3 class="qr-poster-brand">DESI TO DRAGON</h3>
+          <p class="qr-poster-tagline">CRAFTED CUISINE</p>
+          
+          <div class="qr-code-frame">
+            <img src="assets/menu_qr_code.png" alt="Scan for Menu QR Code" class="qr-image">
+          </div>
+
+          <div class="qr-instruction">
+            <i data-lucide="camera" style="color:var(--primary-flame);"></i>
+            <span>SCAN WITH CAMERA TO VIEW MENU & ORDER</span>
+          </div>
+
+          <p class="qr-url-text">https://Nesaragowda13.github.io/desi-to-dragon-menu/</p>
+        </div>
+
+        <div class="qr-modal-actions">
+          <a href="assets/menu_qr_code.png" download="Desi_To_Dragon_Menu_QR.png" class="btn btn-secondary">
+            <i data-lucide="download"></i>
+            <span>Download PNG</span>
+          </a>
+          <button id="printQrPosterBtn" class="btn btn-primary">
+            <i data-lucide="printer"></i>
+            <span>Print Table Standee</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT DISH MODAL -->
+  <div id="addDishModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="modal-brand-logo">
+          <div>
+            <h2 id="modalTitle">Add New Menu Item</h2>
+            <p class="modal-sub">Add a signature creation to the customer menu</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="close-btn"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="dishForm" class="modal-form">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="dishName">Dish Name <span class="req">*</span></label>
+            <input type="text" id="dishName" required placeholder="e.g. Schezwan Paneer Tikka, Fiery Dragon Wings..." autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label for="dishPrice">Price (₹) <span class="req">*</span></label>
+            <input type="number" id="dishPrice" required placeholder="e.g. 280" min="0" step="1">
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category <span class="req">*</span></label>
+            <select id="category" required>
+              <option value="Starters">Starters & Dragon Bites</option>
+              <option value="Mains" selected>Fiery Main Course</option>
+              <option value="Rice & Noodles">Noodles, Rice & Breads</option>
+              <option value="Desserts">Dragon Desserts</option>
+              <option value="Drinks">Elixirs & Beverages</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dietary">Dietary Type <span class="req">*</span></label>
+            <select id="dietary" required>
+              <option value="veg">🟢 Pure Vegetarian</option>
+              <option value="vegan">🌱 Vegan</option>
+              <option value="non-veg">🔴 Non-Vegetarian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fusionType">Cuisine Style <span class="req">*</span></label>
+            <select id="fusionType" required>
+              <option value="fusion">🐉 Dragon Indo-Chinese Fusion</option>
+              <option value="desi">🇮🇳 Classic Desi Indian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="servings">Portion / Serves</label>
+            <input type="text" id="servings" placeholder="e.g. 1-2 portions, 6 pieces..." defaultValue="1-2 portions">
+          </div>
+
+          <div class="form-group">
+            <label for="spiceLevel">Dragon Spice Meter</label>
+            <select id="spiceLevel">
+              <option value="0">Mild / Mild Sweet</option>
+              <option value="1" selected>🌶️ Medium Spicy</option>
+              <option value="2">🌶️🌶️ Dragon Hot</option>
+              <option value="3">🔥🔥🔥 Fiery Inferno</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="isGlutenFree">Gluten-Free?</label>
+            <select id="isGlutenFree">
+              <option value="no">No</option>
+              <option value="yes">Yes (🌾 Gluten Free)</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="description">Key Ingredients & Tasting Notes</label>
+            <textarea id="description" rows="2" placeholder="e.g. Wok-tossed in Schezwan garlic red sauce..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelModalBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i>
+            <span>Add to Menu</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast hidden">
+    <i data-lucide="flame" class="toast-icon"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
