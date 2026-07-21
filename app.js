@@ -229,11 +229,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadDishesFromStorage() {
   const saved = localStorage.getItem('desi_to_dragon_dishes_2026');
   if (saved) {
-    try { potluckState.dishes = JSON.parse(saved); } catch (e) { potluckState.dishes = INITIAL_DISHES; }
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        potluckState.dishes = parsed;
+        INITIAL_DISHES.forEach(init => {
+          if (!potluckState.dishes.some(d => d.id === init.id)) {
+            potluckState.dishes.push(init);
+          }
+        });
+      } else {
+        potluckState.dishes = INITIAL_DISHES;
+      }
+    } catch (e) { potluckState.dishes = INITIAL_DISHES; }
   } else {
     potluckState.dishes = INITIAL_DISHES;
-    localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
   }
+  localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
 }
 
 function loadCartFromStorage() {
@@ -728,8 +740,9 @@ function renderApp() {
 
   emptyState.classList.add('hidden');
 
-  const categories = ["Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
+  const categories = ["Pre-Order Specials", "Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
   const categoryTitleMap = {
+    "Pre-Order Specials": "📅 Pre-Order Specials (Advance Booking)",
     "Starters": "Starters & Dragon Bites",
     "Mains": "Fiery Main Course",
     "Rice & Noodles": "Noodles, Rice & Breads",
@@ -737,6 +750,7 @@ function renderApp() {
     "Drinks": "Elixirs & Beverages"
   };
   const categoryIconMap = {
+    "Pre-Order Specials": "calendar",
     "Starters": "soup",
     "Mains": "flame",
     "Rice & Noodles": "utensils-crossed",
