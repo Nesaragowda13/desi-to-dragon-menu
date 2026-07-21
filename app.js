@@ -170,6 +170,15 @@ const tableQrBtn = document.getElementById('tableQrBtn');
 const closeQrModalBtn = document.getElementById('closeQrModalBtn');
 const printQrPosterBtn = document.getElementById('printQrPosterBtn');
 
+// Manage & Delete Dishes Modal Elements
+const manageDishesModal = document.getElementById('manageDishesModal');
+const openManageDishesModalBtn = document.getElementById('openManageDishesModalBtn');
+const closeManageModalBtn = document.getElementById('closeManageModalBtn');
+const closeManageModalDoneBtn = document.getElementById('closeManageModalDoneBtn');
+const manageSearchInput = document.getElementById('manageSearchInput');
+const manageDishesList = document.getElementById('manageDishesList');
+const resetAllDishesBtn = document.getElementById('resetAllDishesBtn');
+
 // Action Buttons & Toast
 const printBtn = document.getElementById('printBtn');
 const shareBtn = document.getElementById('shareBtn');
@@ -202,6 +211,42 @@ function saveDishesToStorage() {
 }
 
 function setupEventListeners() {
+  // Manage & Delete Dishes Modal
+  if (openManageDishesModalBtn && manageDishesModal) {
+    const closeManageModal = () => manageDishesModal.classList.add('hidden');
+
+    openManageDishesModalBtn.addEventListener('click', () => {
+      renderManageDishesList();
+      manageDishesModal.classList.remove('hidden');
+    });
+
+    if (closeManageModalBtn) closeManageModalBtn.addEventListener('click', closeManageModal);
+    if (closeManageModalDoneBtn) closeManageModalDoneBtn.addEventListener('click', closeManageModal);
+
+    manageDishesModal.addEventListener('click', (e) => {
+      if (e.target === manageDishesModal) closeManageModal();
+    });
+
+    if (manageSearchInput) {
+      manageSearchInput.addEventListener('input', () => {
+        renderManageDishesList(manageSearchInput.value.toLowerCase().trim());
+      });
+    }
+
+    if (resetAllDishesBtn) {
+      resetAllDishesBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to restore the default Desi to Dragon menu? Current custom dishes will be reset.')) {
+          potluckState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES));
+          saveDishesToStorage();
+          showToast('Menu restored to default dishes!');
+          renderManageDishesList();
+          renderApp();
+        }
+      });
+    }
+  }
+
+  // Table QR Modal
   // Table QR Modal
   if (tableQrBtn && tableQrModal) {
     tableQrBtn.addEventListener('click', () => {
@@ -537,6 +582,67 @@ function updateDashboardStats() {
   vegCount.textContent = veg;
   nonVegCount.textContent = nonVeg;
   contributorsCount.textContent = uniqueContributors;
+}
+
+// Render Manage & Delete Dishes List Modal
+function renderManageDishesList(filterQuery = '') {
+  if (!manageDishesList) return;
+
+  let list = potluckState.dishes;
+  if (filterQuery) {
+    list = list.filter(d => 
+      d.name.toLowerCase().includes(filterQuery) || 
+      d.contributor.toLowerCase().includes(filterQuery) || 
+      d.category.toLowerCase().includes(filterQuery)
+    );
+  }
+
+  if (list.length === 0) {
+    manageDishesList.innerHTML = `
+      <div style="text-align:center;padding:30px 10px;color:var(--text-muted);">
+        <i data-lucide="info" style="width:32px;height:32px;margin-bottom:8px;color:var(--primary-flame);"></i>
+        <p>No dishes found matching your query.</p>
+      </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+
+  manageDishesList.innerHTML = list.map(dish => `
+    <div class="manage-dish-row" data-id="${dish.id}">
+      <div class="manage-dish-main">
+        <span class="manage-dish-title">${escapeHTML(dish.name)}</span>
+        <div class="manage-dish-meta">
+          <span>📁 ${escapeHTML(dish.category)}</span> • 
+          <span>👤 ${escapeHTML(dish.contributor)}</span> • 
+          <span>${dish.dietary === 'non-veg' ? '🔴 Non-Veg' : '🟢 Veg'}</span>
+        </div>
+      </div>
+      <button class="btn-delete-item" data-action="delete-manage">
+        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+        <span>Delete</span>
+      </button>
+    </div>
+  `).join('');
+
+  if (window.lucide) lucide.createIcons();
+
+  // Attach delete events inside modal
+  manageDishesList.querySelectorAll('[data-action="delete-manage"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const row = e.target.closest('.manage-dish-row');
+      const id = row.dataset.id;
+      const dish = potluckState.dishes.find(d => d.id === id);
+
+      if (dish && confirm(`Are you sure you want to delete "${dish.name}"?`)) {
+        potluckState.dishes = potluckState.dishes.filter(d => d.id !== id);
+        saveDishesToStorage();
+        showToast(`🗑️ "${dish.name}" deleted`);
+        renderManageDishesList(manageSearchInput ? manageSearchInput.value.toLowerCase().trim() : '');
+        renderApp();
+      }
+    });
+  });
 }
 
 function escapeHTML(str) {

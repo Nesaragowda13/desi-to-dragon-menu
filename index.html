@@ -37,6 +37,10 @@
         </div>
       </div>
       <div class="header-actions">
+        <button id="openManageDishesModalBtn" class="btn btn-secondary" title="Manage and Delete Dishes">
+          <i data-lucide="trash-2"></i>
+          <span>Delete / Manage Dishes</span>
+        </button>
         <button id="tableQrBtn" class="btn btn-secondary" title="View Table Standee QR Code">
           <i data-lucide="qr-code"></i>
           <span>Table QR Standee</span>
@@ -351,6 +355,41 @@
             <i data-lucide="printer"></i>
             <span>Print Table Standee</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE & DELETE DISHES MODAL -->
+  <div id="manageDishesModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+    <div class="modal-card manage-dishes-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon" style="background:rgba(239, 68, 68, 0.15);color:var(--primary-flame);"><i data-lucide="trash-2"></i></div>
+          <div>
+            <h2 id="manageTitle">Delete & Manage Dishes</h2>
+            <p class="modal-sub">Remove unwanted items or reset menu to defaults</p>
+          </div>
+        </div>
+        <button id="closeManageModalBtn" class="close-btn" aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="manage-modal-body">
+        <div class="search-box manage-search-box">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="manageSearchInput" placeholder="Quick search dish to remove..." autocomplete="off">
+        </div>
+
+        <div id="manageDishesList" class="manage-dishes-list">
+          <!-- Dynamic dish rows rendered via JS -->
+        </div>
+
+        <div class="manage-modal-footer">
+          <button id="resetAllDishesBtn" class="btn btn-secondary" style="border-color:rgba(239,68,68,0.4);color:#f87171;">
+            <i data-lucide="rotate-ccw"></i>
+            <span>Restore Default Menu</span>
+          </button>
+          <button id="closeManageModalDoneBtn" class="btn btn-primary">Done</button>
         </div>
       </div>
     </div>
