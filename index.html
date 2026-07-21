@@ -274,6 +274,47 @@
     </div>
   </div>
 
+  <!-- LIVE ORDER TRACKER BAR (FLOATING FOR CUSTOMER) -->
+  <div id="liveOrderTrackerBar" class="live-order-tracker print-hide hidden">
+    <div class="tracker-left">
+      <span class="pulse-dot-green"></span>
+      <span id="trackerStatusText">⏳ Kitchen is preparing your order...</span>
+    </div>
+    <button id="viewActiveOrderBtn" class="btn btn-secondary btn-xs">View Status</button>
+  </div>
+
+  <!-- ORDER READY NOTIFICATION MODAL -->
+  <div id="orderReadyModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card success-modal-card ready-modal-card">
+      <div class="success-header">
+        <div class="ready-bell-icon"><i data-lucide="bell-ring"></i></div>
+        <h2 style="color:var(--primary-gold);font-family:var(--font-dragon);font-size:1.6rem;margin-top:8px;">YOUR ORDER IS READY!</h2>
+        <p class="success-sub" style="font-size:0.95rem;color:#ffffff;">🎉 Hot fresh dishes are ready for serving!</p>
+      </div>
+
+      <div class="order-receipt-box" style="border-color:var(--primary-gold);">
+        <div class="receipt-line">
+          <span>Order ID:</span>
+          <strong id="readyOrderId">#000000</strong>
+        </div>
+        <div class="receipt-line">
+          <span>Table #:</span>
+          <strong id="readyTableNo" style="color:var(--primary-gold);">Table 1</strong>
+        </div>
+        <div class="receipt-line">
+          <span>Status:</span>
+          <span style="color:#34d399;font-weight:800;">🛎️ READY TO SERVE</span>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
+        <button id="closeOrderReadyBtn" class="btn btn-primary" style="width:100%;">
+          <span>Awesome! Enjoy Food 😋</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ORDER PLACED SUCCESS MODAL -->
   <div id="orderPlacedModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="modal-card success-modal-card">

@@ -227,15 +227,19 @@ function setupBroadcastListener() {
       if (e.data.type === 'DISHES_UPDATED') {
         potluckState.dishes = e.data.dishes;
         renderApp();
+      } else if (e.data.type === 'ORDERS_UPDATED') {
+        checkActiveOrderStatus(e.data.orders);
       }
     };
   }
 
-  // 🌐 Poll Cloud Stock Updates (Syncs menu availability from owner dashboard across devices)
+  // 🌐 Poll Cloud Stock & Status Updates
   fetchCloudStock();
+  fetchCloudOrderStatus();
   setInterval(fetchCloudStock, 8000);
+  setInterval(fetchCloudOrderStatus, 5000);
 
-  // 🌐 Listen via Cloud Realtime EventSource Stream for Stock Locks
+  // 🌐 Listen via Cloud Realtime EventSource Stream for Stock & Status Locks
   try {
     const stockEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_stock_2026/json');
     stockEventSource.onmessage = (event) => {
@@ -247,6 +251,22 @@ function setupBroadcastListener() {
             potluckState.dishes = msg.dishes;
             localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
             renderApp();
+          }
+        }
+      } catch (err) {}
+    };
+  } catch (err) {}
+
+  // 🌐 Listen to Order Status Cloud Stream
+  try {
+    const statusEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_status_2026/json');
+    statusEventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload && payload.message) {
+          const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+          if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
+            checkActiveOrderStatus(msg.orders);
           }
         }
       } catch (err) {}
@@ -282,6 +302,103 @@ function fetchCloudStock() {
       });
     })
     .catch(e => console.log('Error fetching cloud stock:', e));
+}
+
+function fetchCloudOrderStatus() {
+  fetch('https://ntfy.sh/desi_to_dragon_status_2026/json?poll=1')
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split('\n');
+      lines.forEach(line => {
+        if (!line) return;
+        try {
+          const payload = JSON.parse(line);
+          if (payload && payload.message) {
+            const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+            if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
+              checkActiveOrderStatus(msg.orders);
+            }
+          }
+        } catch (e) {}
+      });
+    })
+    .catch(e => console.log('Error fetching order status:', e));
+}
+
+// Check Customer Active Order Status
+let notifiedReadyOrders = new Set();
+
+function checkActiveOrderStatus(orders) {
+  const activeOrderId = localStorage.getItem('desi_to_dragon_active_order_id');
+  if (!activeOrderId) return;
+
+  const order = orders.find(o => o.id === activeOrderId);
+  if (!order) return;
+
+  const trackerBar = document.getElementById('liveOrderTrackerBar');
+  const trackerText = document.getElementById('trackerStatusText');
+
+  if (trackerBar && trackerText) {
+    trackerBar.classList.remove('hidden');
+
+    if (order.status === 'pending') {
+      trackerText.textContent = `⏳ Order #${order.id.slice(-4)} sent to kitchen...`;
+    } else if (order.status === 'preparing') {
+      trackerText.textContent = `🔥 Order #${order.id.slice(-4)} cooking in wok!`;
+    } else if (order.status === 'ready') {
+      trackerText.textContent = `🛎️ Order #${order.id.slice(-4)} is READY TO SERVE!`;
+
+      // Trigger Alert if not already notified
+      if (!notifiedReadyOrders.has(order.id)) {
+        notifiedReadyOrders.add(order.id);
+        triggerOrderReadyNotification(order);
+      }
+    } else if (order.status === 'completed') {
+      trackerText.textContent = `✅ Order #${order.id.slice(-4)} Served. Enjoy!`;
+    }
+  }
+}
+
+function triggerOrderReadyNotification(order) {
+  // Play Ready Sound
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
+    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.3); // G5
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.6);
+  } catch (e) {}
+
+  // Confetti
+  if (window.confetti) {
+    confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+  }
+
+  // Show Modal
+  const modal = document.getElementById('orderReadyModal');
+  const orderId = document.getElementById('readyOrderId');
+  const tableNo = document.getElementById('readyTableNo');
+  const closeBtn = document.getElementById('closeOrderReadyBtn');
+
+  if (modal && orderId && tableNo) {
+    orderId.textContent = '#' + order.id.slice(-6);
+    tableNo.textContent = order.tableNumber || 'Table 1';
+    modal.classList.remove('hidden');
+
+    if (closeBtn) {
+      closeBtn.onclick = () => modal.classList.add('hidden');
+    }
+  }
+
+  showToast(`🎉 YOUR ORDER IS READY TO SERVE!`);
 }
 
 function setupEventListeners() {
@@ -390,7 +507,8 @@ function handleCheckoutSubmit(e) {
     timestamp: Date.now()
   };
 
-  // Save order to LocalStorage
+  // Save order to LocalStorage & set active order ID for live tracking
+  localStorage.setItem('desi_to_dragon_active_order_id', order.id);
   const savedOrders = localStorage.getItem('desi_to_dragon_orders_2026');
   let ordersList = [];
   if (savedOrders) {
