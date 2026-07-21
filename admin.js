@@ -206,6 +206,15 @@ function loadDataFromStorage() {
 function saveDishes() {
   localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(adminState.dishes));
   if (syncChannel) syncChannel.postMessage({ type: 'DISHES_UPDATED', dishes: adminState.dishes });
+
+  // 🌐 Broadcast Dish & Stock Changes to Cloud Stream
+  try {
+    fetch('https://ntfy.sh/desi_to_dragon_stock_2026', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'DISHES_UPDATED', dishes: adminState.dishes })
+    }).catch(e => console.log('Stock cloud sync error:', e));
+  } catch (e) { console.log('Stock sync exception:', e); }
 }
 
 function saveOrders() {
@@ -229,6 +238,10 @@ function setupBroadcastListener() {
     };
   }
 
+  // 🌐 Poll Cloud Order History on Startup (Retrieves orders placed while offline/away)
+  fetchCloudOrdersHistory();
+  setInterval(fetchCloudOrdersHistory, 6000); // 6-second backup cloud poll
+
   // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
   try {
     const cloudEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_orders_2026/json');
@@ -238,16 +251,7 @@ function setupBroadcastListener() {
         if (payload && payload.message) {
           const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
           if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
-            const newOrder = orderMsg.order;
-            
-            // Avoid duplicate additions
-            if (!adminState.orders.some(o => o.id === newOrder.id)) {
-              adminState.orders.unshift(newOrder);
-              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
-              playOrderChimeSound();
-              showToast(`🔔 New Cloud Order from ${newOrder.customerName} (Table ${newOrder.tableNumber})!`);
-              renderAdminUI();
-            }
+            processNewCloudOrder(orderMsg.order);
           }
         }
       } catch (err) {
@@ -265,6 +269,48 @@ function setupBroadcastListener() {
       renderAdminUI();
     }
   });
+}
+
+// Fetch Cloud Orders History
+function fetchCloudOrdersHistory() {
+  fetch('https://ntfy.sh/desi_to_dragon_orders_2026/json?poll=1')
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split('\n');
+      let updated = false;
+      lines.forEach(line => {
+        if (!line) return;
+        try {
+          const payload = JSON.parse(line);
+          if (payload && payload.message) {
+            const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+            if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
+              const o = orderMsg.order;
+              if (!adminState.orders.some(existing => existing.id === o.id)) {
+                adminState.orders.unshift(o);
+                updated = true;
+              }
+            }
+          }
+        } catch (e) {}
+      });
+      if (updated) {
+        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
+        playOrderChimeSound();
+        renderAdminUI();
+      }
+    })
+    .catch(e => console.log('Error polling cloud orders:', e));
+}
+
+function processNewCloudOrder(newOrder) {
+  if (!adminState.orders.some(o => o.id === newOrder.id)) {
+    adminState.orders.unshift(newOrder);
+    localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
+    playOrderChimeSound();
+    showToast(`🔔 New Order from ${newOrder.customerName} (Table ${newOrder.tableNumber})!`);
+    renderAdminUI();
+  }
 }
 
 // Play Order Alert Sound (Web Audio Synthesizer)
