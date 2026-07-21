@@ -285,10 +285,17 @@ function setupBroadcastListener() {
         const payload = JSON.parse(event.data);
         if (payload && payload.message) {
           const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          if (msg && msg.type === 'DISHES_UPDATED' && msg.dishes) {
+          if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
             potluckState.dishes = msg.dishes;
             localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
             renderApp();
+          } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
+            const d = potluckState.dishes.find(item => item.id === msg.dishId);
+            if (d) {
+              d.isSoldOut = !!msg.isSoldOut;
+              localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
+              renderApp();
+            }
           }
         }
       } catch (err) {}
@@ -330,10 +337,17 @@ function fetchCloudStock() {
           const payload = JSON.parse(line);
           if (payload && payload.message) {
             const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-            if (msg && msg.type === 'DISHES_UPDATED' && msg.dishes) {
+            if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
               potluckState.dishes = msg.dishes;
               localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
               renderApp();
+            } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
+              const d = potluckState.dishes.find(item => item.id === msg.dishId);
+              if (d) {
+                d.isSoldOut = !!msg.isSoldOut;
+                localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
+                renderApp();
+              }
             }
           }
         } catch (e) {}
@@ -924,3 +938,14 @@ function escapeHTML(str) {
   if (!str) return '';
   return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
+
+window.resetFilters = function() {
+  potluckState.selectedCategory = 'all';
+  potluckState.selectedDiet = 'all';
+  potluckState.searchQuery = '';
+  if (searchInput) searchInput.value = '';
+  if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.category === 'all'));
+  document.querySelectorAll('.tag-chip').forEach(c => c.classList.toggle('active', c.dataset.diet === 'all'));
+  renderApp();
+};
