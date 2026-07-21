@@ -990,6 +990,100 @@ body {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* TABLE STANDEE QR STYLES */
+.qr-standee-card {
+  max-width: 480px !important;
+}
+
+.qr-standee-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.qr-poster-preview {
+  background: #fbf7ee;
+  color: #1c1917;
+  border: 4px double #78350f;
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-poster-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #78350f;
+  margin-bottom: 6px;
+}
+
+.qr-poster-brand {
+  font-family: var(--font-dragon);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #78350f;
+  letter-spacing: 1.5px;
+}
+
+.qr-poster-tagline {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9a3412;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.qr-code-frame {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 2px solid #e7e5e4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.qr-image {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.qr-instruction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #78350f;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.qr-url-text {
+  font-size: 0.75rem;
+  color: #57534e;
+  word-break: break-all;
+}
+
+.qr-modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.qr-modal-actions .btn {
+  flex: 1;
+}
+
 /* FOOTER */
 .app-footer {
   margin-top: 60px;

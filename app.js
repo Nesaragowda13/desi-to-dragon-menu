@@ -164,6 +164,12 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 const cancelModalBtn = document.getElementById('cancelModalBtn');
 const dishForm = document.getElementById('dishForm');
 
+// Table QR Modal Elements
+const tableQrModal = document.getElementById('tableQrModal');
+const tableQrBtn = document.getElementById('tableQrBtn');
+const closeQrModalBtn = document.getElementById('closeQrModalBtn');
+const printQrPosterBtn = document.getElementById('printQrPosterBtn');
+
 // Action Buttons & Toast
 const printBtn = document.getElementById('printBtn');
 const shareBtn = document.getElementById('shareBtn');
@@ -196,6 +202,25 @@ function saveDishesToStorage() {
 }
 
 function setupEventListeners() {
+  // Table QR Modal
+  if (tableQrBtn && tableQrModal) {
+    tableQrBtn.addEventListener('click', () => {
+      tableQrModal.classList.remove('hidden');
+    });
+
+    const closeQrModal = () => tableQrModal.classList.add('hidden');
+    if (closeQrModalBtn) closeQrModalBtn.addEventListener('click', closeQrModal);
+    tableQrModal.addEventListener('click', (e) => {
+      if (e.target === tableQrModal) closeQrModal();
+    });
+
+    if (printQrPosterBtn) {
+      printQrPosterBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+  }
+
   // Search Input
   searchInput.addEventListener('input', (e) => {
     potluckState.searchQuery = e.target.value.toLowerCase().trim();
