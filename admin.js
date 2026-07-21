@@ -238,7 +238,7 @@ function setupBroadcastListener() {
     syncChannel.onmessage = (event) => {
       if (event.data.type === 'NEW_ORDER') {
         playOrderChimeSound();
-        showToast(`🔔 New Order from ${event.data.order.customerName} (Table ${event.data.order.tableNumber})!`);
+        showToast(`🔔 New Order from ${event.data.order.customerName} (${event.data.order.email})!`);
         loadDataFromStorage();
         renderAdminUI();
       } else if (event.data.type === 'ORDERS_UPDATED' || event.data.type === 'DISHES_UPDATED') {
@@ -318,7 +318,7 @@ function processNewCloudOrder(newOrder) {
     adminState.orders.unshift(newOrder);
     localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
     playOrderChimeSound();
-    showToast(`🔔 New Order from ${newOrder.customerName} (Table ${newOrder.tableNumber})!`);
+    showToast(`🔔 New Order from ${newOrder.customerName} (${newOrder.email})!`);
     renderAdminUI();
   }
 }
@@ -501,9 +501,8 @@ function renderOrdersGrid() {
         <div class="order-customer-box">
           <div class="customer-info-line">
             <span class="customer-name">👤 ${escapeHTML(order.customerName)}</span>
-            <span class="table-badge">📍 Table #${escapeHTML(order.tableNumber || '1')}</span>
           </div>
-          <div class="customer-sub">📞 ${escapeHTML(order.phone || 'N/A')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay at Table'}</div>
+          <div class="customer-sub">📧 ${escapeHTML(order.email || 'N/A')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay Counter/Table'}</div>
         </div>
 
         <div class="order-items-list">

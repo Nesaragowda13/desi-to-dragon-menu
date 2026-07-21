@@ -385,12 +385,12 @@ function triggerOrderReadyNotification(order) {
   // Show Modal
   const modal = document.getElementById('orderReadyModal');
   const orderId = document.getElementById('readyOrderId');
-  const tableNo = document.getElementById('readyTableNo');
+  const emailEl = document.getElementById('readyCustomerEmail');
   const closeBtn = document.getElementById('closeOrderReadyBtn');
 
-  if (modal && orderId && tableNo) {
+  if (modal && orderId) {
     orderId.textContent = '#' + order.id.slice(-6);
-    tableNo.textContent = order.tableNumber || 'Table 1';
+    if (emailEl) emailEl.textContent = order.email || 'customer@example.com';
     modal.classList.remove('hidden');
 
     if (closeBtn) {
@@ -489,8 +489,7 @@ function handleCheckoutSubmit(e) {
   }
 
   const name = document.getElementById('customerName').value.trim();
-  const phone = document.getElementById('customerPhone').value.trim();
-  const table = document.getElementById('tableNumber').value.trim() || 'Table 1';
+  const email = document.getElementById('customerEmail').value.trim();
   const payment = document.getElementById('paymentMethod').value;
 
   const totalAmt = potluckState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -498,8 +497,7 @@ function handleCheckoutSubmit(e) {
   const order = {
     id: 'ORD-' + Date.now(),
     customerName: name,
-    phone: phone,
-    tableNumber: table,
+    email: email,
     paymentMethod: payment,
     items: JSON.parse(JSON.stringify(potluckState.cart)),
     totalAmount: totalAmt,
@@ -546,7 +544,8 @@ function handleCheckoutSubmit(e) {
   // Show Order Placed Modal
   receiptOrderId.textContent = '#' + order.id.slice(-6);
   receiptCustomerName.textContent = order.customerName;
-  receiptTableNo.textContent = order.tableNumber;
+  const receiptEmailEl = document.getElementById('receiptCustomerEmail');
+  if (receiptEmailEl) receiptEmailEl.textContent = order.email;
   receiptTotalAmount.textContent = '₹' + order.totalAmount;
   orderPlacedModal.classList.remove('hidden');
 
