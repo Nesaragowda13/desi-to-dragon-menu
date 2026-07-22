@@ -224,6 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   setupBroadcastListener();
   renderApp();
+
+  if (window.Notification && Notification.permission !== 'granted') {
+    Notification.requestPermission();
+  }
 });
 
 function loadDishesFromStorage() {
@@ -411,6 +415,12 @@ function checkActiveOrderStatus(orders) {
   }
 }
 
+function triggerSystemNotification(title, body) {
+  if (window.Notification && Notification.permission === 'granted') {
+    new Notification(title, { body: body });
+  }
+}
+
 function triggerOrderReadyNotification(order) {
   // Play Ready Sound
   try {
@@ -451,6 +461,7 @@ function triggerOrderReadyNotification(order) {
   }
 
   showToast(`🎉 YOUR ORDER IS READY TO SERVE!`);
+  triggerSystemNotification("Desi to Dragon Menu", `🛎️ Your Order #${order.id.slice(-6)} is READY TO SERVE!`);
 }
 
 function setupEventListeners() {
