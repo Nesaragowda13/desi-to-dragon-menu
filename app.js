@@ -602,7 +602,7 @@ function setupEventListeners() {
         syncPaymentUi();
       }
       renderApp();
-      showToast(mode === 'preorder' ? '📅 Switched to Pre-Order Specials (UPI Online)' : '🍽️ Switched to Dine-In Menu (Cash Pay)');
+      showToast(mode === 'preorder' ? '📅 Switched to Pre-Order (UPI Online)' : '🍽️ Switched to Dine-In Menu (Cash Pay)');
     };
 
     modeDineInBtn.addEventListener('click', () => handleModeSwitch('dinein'));
@@ -894,11 +894,9 @@ function renderCartDrawer() {
 
 function getFilteredDishes() {
   return potluckState.dishes.filter(dish => {
-    // Mode Filter: Separate Dine-In from Pre-Orders
+    // Mode Filter: In Dine-In, hide Pre-Order Specials. In Pre-Order, show ALL menu items.
     if (potluckState.menuMode === 'dinein') {
       if (dish.category === 'Pre-Order Specials') return false;
-    } else {
-      if (dish.category !== 'Pre-Order Specials') return false;
     }
 
     const categoryMatch = potluckState.selectedCategory === 'all' || dish.category === potluckState.selectedCategory;
@@ -942,13 +940,11 @@ function renderApp() {
   // Adjust Category tabs display based on mode
   const catTabsContainer = document.getElementById('categoryTabs');
   if (catTabsContainer) {
-    if (potluckState.menuMode === 'preorder') {
-      catTabsContainer.classList.add('hidden');
-    } else {
-      catTabsContainer.classList.remove('hidden');
-      // Hide Pre-Order Specials button from Dine-In category tabs
-      const preBtn = catTabsContainer.querySelector('[data-category="Pre-Order Specials"]');
-      if (preBtn) preBtn.style.display = 'none';
+    catTabsContainer.classList.remove('hidden');
+    // Hide Pre-Order Specials button from Dine-In category tabs
+    const preBtn = catTabsContainer.querySelector('[data-category="Pre-Order Specials"]');
+    if (preBtn) {
+      preBtn.style.display = potluckState.menuMode === 'dinein' ? 'none' : 'inline-flex';
     }
   }
 
@@ -964,7 +960,7 @@ function renderApp() {
 
   const categories = ["Pre-Order Specials", "Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
   const categoryTitleMap = {
-    "Pre-Order Specials": "📅 Pre-Order Specials (Advance Booking)",
+    "Pre-Order Specials": "📅 Pre-Order (Advance Booking)",
     "Starters": "Starters & Dragon Bites",
     "Mains": "Fiery Main Course",
     "Rice & Noodles": "Noodles, Rice & Breads",
