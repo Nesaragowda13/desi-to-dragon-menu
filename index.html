@@ -260,13 +260,13 @@
             <div class="form-group">
               <label for="paymentMethod">Payment Method <span class="req">*</span></label>
               <select id="paymentMethod" required>
-                <option value="upi" id="upiPayOption" selected>💳 Pay via UPI QR / Google Pay</option>
-                <option value="cash" id="cashPayOption">💵 Pay Cash at Table / Counter</option>
+                <option value="cash" id="cashPayOption" selected>💵 Pay Cash at Table / Counter</option>
+                <option value="upi" id="upiPayOption">💳 Pay via UPI QR / Google Pay</option>
               </select>
             </div>
           </div>
 
-          <div id="upiQrSection" class="upi-qr-section">
+          <div id="upiQrSection" class="upi-qr-section hidden">
             <div class="upi-box">
               <p class="upi-title">Scan QR or Pay to UPI ID:</p>
               <div class="upi-id-badge">

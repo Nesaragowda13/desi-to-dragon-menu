@@ -543,9 +543,10 @@ function setupEventListeners() {
           if (upiPayOption) upiPayOption.disabled = false;
         } else {
           paymentMethodSelect.value = 'cash';
-          if (upiPayOption) upiPayOption.disabled = true;
+          if (upiPayOption) upiPayOption.disabled = false;
           if (cashPayOption) cashPayOption.disabled = false;
         }
+        syncPaymentUi();
       }
       renderApp();
       showToast(mode === 'preorder' ? '📅 Switched to Pre-Order Specials (UPI Online)' : '🍽️ Switched to Dine-In Menu (Cash Pay)');
@@ -583,6 +584,14 @@ function setupEventListeners() {
   const cashPayOption = document.getElementById('cashPayOption');
   const upiPayOption = document.getElementById('upiPayOption');
 
+  const syncPaymentUi = () => {
+    if (!paymentMethodSelect) return;
+    const upiQrSection = document.getElementById('upiQrSection');
+    if (upiQrSection) {
+      upiQrSection.classList.toggle('hidden', paymentMethodSelect.value !== 'upi');
+    }
+  };
+
   if (orderTypeSelect) {
     orderTypeSelect.addEventListener('change', (e) => {
       const isPreOrder = e.target.value === 'preorder';
@@ -598,9 +607,14 @@ function setupEventListeners() {
         if (preOrderDateTimeInput) preOrderDateTimeInput.required = false;
         paymentMethodSelect.value = 'cash';
         if (cashPayOption) cashPayOption.disabled = false;
-        if (upiPayOption) upiPayOption.disabled = true;
+        if (upiPayOption) upiPayOption.disabled = false;
       }
+      syncPaymentUi();
     });
+  }
+
+  if (paymentMethodSelect) {
+    paymentMethodSelect.addEventListener('change', syncPaymentUi);
   }
 
   // Cart Drawer Events
@@ -614,6 +628,7 @@ function setupEventListeners() {
       paymentMethodSelect.value = 'upi';
       if (cashPayOption) cashPayOption.disabled = true;
     }
+    syncPaymentUi();
     renderCartDrawer();
     cartDrawerModal.classList.remove('hidden');
   };
@@ -696,11 +711,6 @@ function handleCheckoutSubmit(e) {
 
   if (orderType === 'preorder' && payment !== 'upi') {
     alert('Pre-orders require online UPI payment advance!');
-    return;
-  }
-
-  if (orderType === 'dinein' && payment !== 'cash') {
-    alert('Dine-In orders require Cash payment at counter or table!');
     return;
   }
 
