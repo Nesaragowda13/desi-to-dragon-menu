@@ -254,7 +254,7 @@ function saveOrders() {
 
   // 🌐 Send Status Update to Cloud Realtime Endpoint
   try {
-    fetch('https://ntfy.sh/desi_to_dragon_status_2026', {
+    fetch('https://ntfy.sh/desidragon_status_v2', {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'ORDERS_STATUS_MAP', statuses: statusMap })
@@ -288,7 +288,7 @@ function setupBroadcastListener() {
 
   // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
   try {
-    const cloudEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_orders_2026/json');
+    const cloudEventSource = new EventSource('https://ntfy.sh/desidragon_orders_v2/json');
     cloudEventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
@@ -308,7 +308,7 @@ function setupBroadcastListener() {
 
   // 🌐 Listen to Order Status Cloud Stream (for multi-admin sync)
   try {
-    const statusEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_status_2026/json');
+    const statusEventSource = new EventSource('https://ntfy.sh/desidragon_status_v2/json');
     statusEventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
@@ -343,7 +343,7 @@ function setupBroadcastListener() {
 
 // Fetch Cloud Order Status Map
 function fetchCloudOrderStatus() {
-  fetch('https://ntfy.sh/desi_to_dragon_status_2026/json?poll=1')
+  fetch('https://ntfy.sh/desidragon_status_v2/json?poll=1')
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split('\n');
@@ -375,7 +375,7 @@ function fetchCloudOrderStatus() {
 
 // Fetch Cloud Orders History
 function fetchCloudOrdersHistory() {
-  fetch('https://ntfy.sh/desi_to_dragon_orders_2026/json?poll=1')
+  fetch('https://ntfy.sh/desidragon_orders_v2/json?poll=1')
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split('\n');
