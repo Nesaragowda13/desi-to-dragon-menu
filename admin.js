@@ -201,7 +201,11 @@ function loadDataFromStorage() {
   // Load Orders
   const savedOrders = localStorage.getItem('desi_to_dragon_orders_2026');
   if (savedOrders) {
-    try { adminState.orders = JSON.parse(savedOrders); } catch (e) { adminState.orders = []; }
+    try {
+      const parsed = JSON.parse(savedOrders);
+      const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
+      adminState.orders = parsed.filter(o => !currentCleared.includes(o.id));
+    } catch (e) { adminState.orders = []; }
   } else {
     adminState.orders = [];
     saveOrders();
@@ -299,6 +303,7 @@ function fetchCloudOrdersHistory() {
     .then(text => {
       const lines = text.trim().split('\n');
       let updated = false;
+      const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
       lines.forEach(line => {
         if (!line) return;
         try {
@@ -307,6 +312,7 @@ function fetchCloudOrdersHistory() {
             const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
             if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
               const o = orderMsg.order;
+              if (currentCleared.includes(o.id)) return;
               if (!adminState.orders.some(existing => existing.id === o.id)) {
                 adminState.orders.unshift(o);
                 updated = true;
@@ -329,6 +335,9 @@ function fetchCloudOrdersHistory() {
 }
 
 function processNewCloudOrder(newOrder) {
+  const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
+  if (currentCleared.includes(newOrder.id)) return;
+
   if (!adminState.orders.some(o => o.id === newOrder.id)) {
     adminState.orders.unshift(newOrder);
     localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
@@ -420,6 +429,12 @@ function setupEventListeners() {
   // Clear Completed Orders
   clearCompletedOrdersBtn.addEventListener('click', () => {
     if (confirm('Clear completed and cancelled orders from history?')) {
+      const completedOrCancelled = adminState.orders.filter(o => o.status === 'completed' || o.status === 'cancelled');
+      const clearedIds = completedOrCancelled.map(o => o.id);
+      let currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
+      currentCleared = [...new Set([...currentCleared, ...clearedIds])];
+      localStorage.setItem('desi_to_dragon_cleared_orders_2026', JSON.stringify(currentCleared));
+
       adminState.orders = adminState.orders.filter(o => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready');
       saveOrders();
       showToast('Completed orders cleared.');
