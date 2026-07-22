@@ -505,14 +505,14 @@ function updateAdminStats() {
     if (adminState.activeTab === 'orders') {
       dineinSubtab.classList.remove('hidden');
       preorderSubtab.classList.add('hidden');
-      dineinSubtab.classList.add('active');
-      preorderSubtab.classList.remove('active');
     } else if (adminState.activeTab === 'preorders') {
       dineinSubtab.classList.add('hidden');
       preorderSubtab.classList.remove('hidden');
-      dineinSubtab.classList.remove('active');
-      preorderSubtab.classList.add('active');
     }
+    
+    dineinSubtab.classList.toggle('active', adminState.orderFilter === 'dinein');
+    preorderSubtab.classList.toggle('active', adminState.orderFilter === 'preorder');
+    completedSubtab.classList.toggle('active', adminState.orderFilter === 'completed');
   }
 
   // Update badges on sub-tabs
