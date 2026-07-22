@@ -894,11 +894,6 @@ function renderCartDrawer() {
 
 function getFilteredDishes() {
   return potluckState.dishes.filter(dish => {
-    // Mode Filter: In Dine-In, hide Pre-Order Specials. In Pre-Order, show ALL menu items.
-    if (potluckState.menuMode === 'dinein') {
-      if (dish.category === 'Pre-Order Specials') return false;
-    }
-
     const categoryMatch = potluckState.selectedCategory === 'all' || dish.category === potluckState.selectedCategory;
 
     let dietMatch = true;
@@ -941,11 +936,6 @@ function renderApp() {
   const catTabsContainer = document.getElementById('categoryTabs');
   if (catTabsContainer) {
     catTabsContainer.classList.remove('hidden');
-    // Hide Pre-Order Specials button from Dine-In category tabs
-    const preBtn = catTabsContainer.querySelector('[data-category="Pre-Order Specials"]');
-    if (preBtn) {
-      preBtn.style.display = potluckState.menuMode === 'dinein' ? 'none' : 'inline-flex';
-    }
   }
 
   const filteredDishes = getFilteredDishes();
@@ -958,9 +948,8 @@ function renderApp() {
 
   emptyState.classList.add('hidden');
 
-  const categories = ["Pre-Order Specials", "Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
+  const categories = ["Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
   const categoryTitleMap = {
-    "Pre-Order Specials": "📅 Pre-Order (Advance Booking)",
     "Starters": "Starters & Dragon Bites",
     "Mains": "Fiery Main Course",
     "Rice & Noodles": "Noodles, Rice & Breads",
