@@ -5,7 +5,7 @@
 // Supabase Configuration
 const SUPABASE_URL = 'https://jwbjpsqdnfguzrphyxmq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3Ympwc3FkbmZndXpycGh5eG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDk2MTgsImV4cCI6MjEwMDI4NTYxOH0.kkL54Bz_iQ_jX_8_3X_qMJXnJ0JhYnlw0GBo6N7vxVs';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
@@ -174,7 +174,7 @@ function updateCloudOrderStatusMap(orderId, newStatus) {
 
   // 🌐 Send Status Update to Supabase Database
   try {
-    supabase.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
+    supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
       if (error) console.error('Supabase update status error:', error);
     });
   } catch (err) {
@@ -190,7 +190,7 @@ function triggerSystemNotification(title, body) {
 
 async function fetchInitialSupabaseOrders() {
   try {
-    const { data, error } = await supabase.from('orders').select('*').order('timestamp', { ascending: false });
+    const { data, error } = await supabaseClient.from('orders').select('*').order('timestamp', { ascending: false });
     if (error) {
       console.error('Error fetching initial orders:', error);
       return;
@@ -229,7 +229,7 @@ async function fetchInitialSupabaseOrders() {
 
 function setupSupabaseRealtime() {
   try {
-    supabase.channel('public:orders')
+    supabaseClient.channel('public:orders')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
         const dbOrder = payload.new;
         const o = {
