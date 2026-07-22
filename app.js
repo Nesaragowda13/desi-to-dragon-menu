@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DESI TO DRAGON - CUSTOMER ORDERING PORTAL JS
  */
 
@@ -10,160 +10,43 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
   {
-    id: "dish-pre-1",
-    name: "📅 Grand Dragon Peking Roast Feast",
-    price: 1450,
-    category: "Mains",
-    dietary: "non-veg",
-    fusionType: "fusion",
-    servings: "Serves 4-6",
-    spiceLevel: "2",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "24-hour slow-marinated roasted feast with scallion pancakes & sweet bean hoisin glaze. Requires advance pre-order & online payment."
-  },
-  {
-    id: "dish-pre-2",
-    name: "📅 Royal Dum Pukht Lamb Raan Feast",
-    price: 1890,
-    category: "Mains",
-    dietary: "non-veg",
-    fusionType: "desi",
-    servings: "Serves 6-8",
-    spiceLevel: "3",
-    isGlutenFree: "yes",
-    isSoldOut: false,
-    description: "Slow dum-cooked whole leg of lamb infused with saffron, star anise, and Kashmiri mawa gravy. Requires advance pre-order & online payment."
-  },
-  {
     id: "dish-1",
-    name: "Schezwan Paneer Tikka",
-    price: 280,
+    name: "Golden Dragon Dumplings",
+    price: 18,
     category: "Starters",
     dietary: "veg",
     fusionType: "fusion",
-    servings: "12 skewers",
-    spiceLevel: "2",
-    isGlutenFree: "yes",
+    servings: "6 pieces",
+    spiceLevel: "1",
+    isGlutenFree: "no",
     isSoldOut: false,
-    description: "Clay-oven grilled cottage cheese marinated in fiery Schezwan red garlic paste and Punjabi spices."
+    description: "Steamed dumplings filled with savory vegetables."
   },
   {
     id: "dish-2",
-    name: "Fiery Dragon Chicken Wings",
-    price: 340,
-    category: "Starters",
-    dietary: "non-veg",
-    fusionType: "fusion",
-    servings: "16 wings",
+    name: "Spicy Schezwan Noodles",
+    price: 24,
+    category: "Mains",
+    dietary: "veg",
+    fusionType: "desi",
+    servings: "2 people",
     spiceLevel: "3",
     isGlutenFree: "no",
     isSoldOut: false,
-    description: "Crispy fried wings tossed in dark soy, bird's eye chili, honey glaze & toasted sesame."
+    description: "Wok-tossed noodles in a fiery homemade Schezwan sauce."
   },
   {
     id: "dish-3",
-    name: "Chilli Garlic Steamed Momos",
-    price: 220,
-    category: "Starters",
-    dietary: "vegan",
-    fusionType: "fusion",
-    servings: "20 pieces",
-    spiceLevel: "1",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Himalayan veggie dumplings served with spicy garlic sesame chutney."
-  },
-  {
-    id: "dish-4",
-    name: "Fiery Fire-Breathed Butter Chicken",
-    price: 390,
-    category: "Mains",
-    dietary: "non-veg",
-    fusionType: "desi",
-    servings: "2-3 portions",
-    spiceLevel: "2",
-    isGlutenFree: "yes",
-    isSoldOut: false,
-    description: "Smoky tandoori chicken simmered in rich tomato cashew butter gravy with a fiery chili twist."
-  },
-  {
-    id: "dish-5",
-    name: "Paneer Manchurian Handi Gravy",
-    price: 320,
-    category: "Mains",
-    dietary: "veg",
-    fusionType: "fusion",
-    servings: "2 portions",
-    spiceLevel: "1",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Crispy paneer cubes in thick ginger-garlic soy coriander gravy cooked in a clay handi."
-  },
-  {
-    id: "dish-6",
-    name: "Triple Schezwan Rice & Noodle Pot",
-    price: 350,
-    category: "Rice & Noodles",
-    dietary: "veg",
-    fusionType: "fusion",
-    servings: "2-3 portions",
-    spiceLevel: "2",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Wok-fried Schezwan rice & fried noodles served with hot spicy Manchurian sauce gravy."
-  },
-  {
-    id: "dish-7",
-    name: "Butter Garlic Naan & Tandoori Roti",
-    price: 90,
-    category: "Rice & Noodles",
-    dietary: "veg",
-    fusionType: "desi",
-    servings: "2 pieces",
-    spiceLevel: "0",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Fresh clay-oven breads brushed with garlic herb butter."
-  },
-  {
-    id: "dish-8",
-    name: "Sizzling Dragon Brownie",
-    price: 240,
+    name: "Mango Lassi Delight",
+    price: 12,
     category: "Desserts",
     dietary: "veg",
     fusionType: "fusion",
-    servings: "1 portion",
-    spiceLevel: "0",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Rich dark Belgian chocolate brownie served with hot chocolate fudge & vanilla cream."
-  },
-  {
-    id: "dish-9",
-    name: "Rose Kulfi & Mango Dragon Mousse",
-    price: 180,
-    category: "Desserts",
-    dietary: "veg",
-    fusionType: "desi",
     servings: "1 glass",
     spiceLevel: "0",
     isGlutenFree: "yes",
     isSoldOut: false,
-    description: "Traditional matka kulfi infused with cardamom paired with Alphonso mango mousse."
-  },
-  {
-    id: "dish-10",
-    name: "Dragon Flame Chili Mango Cooler",
-    price: 150,
-    category: "Drinks",
-    dietary: "vegan",
-    fusionType: "fusion",
-    servings: "1 glass",
-    spiceLevel: "1",
-    isGlutenFree: "yes",
-    isSoldOut: false,
-    description: "Ripe Alphonso mango juice rimmed with pink salt & chili, splash of lime & mint soda."
+    description: "Sweet and creamy mango yogurt drink."
   }
 ];
 
@@ -245,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadDishesFromStorage() {
-  const saved = localStorage.getItem('desi_to_dragon_dishes_2026');
+  const saved = localStorage.getItem('desi_to_dragon_dishes_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -263,7 +146,7 @@ function loadDishesFromStorage() {
   } else {
     potluckState.dishes = INITIAL_DISHES;
   }
-  localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v5', JSON.stringify(potluckState.dishes));
 }
 
 function updateCustomerDishes(newDishes) {
@@ -277,7 +160,7 @@ function updateCustomerDishes(newDishes) {
     }
   });
   
-  localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v5', JSON.stringify(potluckState.dishes));
   renderApp();
 }
 
@@ -384,7 +267,7 @@ function setupBroadcastListener() {
   }
 
   window.addEventListener('storage', (e) => {
-    if (e.key === 'desi_to_dragon_dishes_2026') {
+    if (e.key === 'desi_to_dragon_dishes_v5') {
       loadDishesFromStorage();
       renderApp();
     }
