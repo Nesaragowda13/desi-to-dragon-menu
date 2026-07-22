@@ -8,7 +8,7 @@ const INITIAL_DISHES = [
     id: "dish-pre-1",
     name: "📅 Grand Dragon Peking Roast Feast",
     price: 1450,
-    category: "Pre-Order Specials",
+    category: "Mains",
     dietary: "non-veg",
     fusionType: "fusion",
     servings: "Serves 4-6",
@@ -21,7 +21,7 @@ const INITIAL_DISHES = [
     id: "dish-pre-2",
     name: "📅 Royal Dum Pukht Lamb Raan Feast",
     price: 1890,
-    category: "Pre-Order Specials",
+    category: "Mains",
     dietary: "non-veg",
     fusionType: "desi",
     servings: "Serves 6-8",
@@ -359,7 +359,7 @@ function setupBroadcastListener() {
 
   // 🔔 Listen via Cloud Realtime EventSource Stream for Stock & Status Locks
   try {
-    const stockEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_stock_2026/json');
+    const stockEventSource = new EventSource('https://ntfy.envs.net/desidragon_stock_v2/json');
     stockEventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
@@ -382,7 +382,7 @@ function setupBroadcastListener() {
 
   // 🌐 Listen to Order Status Cloud Stream
   try {
-    const statusEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_status_2026/json');
+    const statusEventSource = new EventSource('https://ntfy.envs.net/desidragon_status_v2/json');
     statusEventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
@@ -403,7 +403,7 @@ function setupBroadcastListener() {
 }
 
 function fetchCloudStock() {
-  fetch('https://ntfy.sh/desi_to_dragon_stock_2026/json?poll=1')
+  fetch('https://ntfy.envs.net/desidragon_stock_v2/json?poll=1')
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split('\n');
@@ -431,7 +431,7 @@ function fetchCloudStock() {
 }
 
 function fetchCloudOrderStatus() {
-  fetch('https://ntfy.sh/desi_to_dragon_status_2026/json?poll=1')
+  fetch('https://ntfy.envs.net/desidragon_status_v2/json?poll=1')
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split('\n');
