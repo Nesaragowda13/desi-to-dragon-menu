@@ -112,6 +112,18 @@
 
     <!-- FILTER & SEARCH BAR -->
     <section class="filter-section print-hide">
+      <!-- MENU MODE TOGGLE (DINE-IN VS PRE-ORDER) -->
+      <div class="menu-mode-tabs">
+        <button class="mode-tab-btn active" id="modeDineInBtn">
+          <i data-lucide="utensils"></i>
+          <span>🍽️ Dine-In Menu</span>
+        </button>
+        <button class="mode-tab-btn" id="modePreOrderBtn">
+          <i data-lucide="calendar"></i>
+          <span>📅 Pre-Order Specials</span>
+        </button>
+      </div>
+
       <div class="search-box">
         <i data-lucide="search" class="search-icon"></i>
         <input type="text" id="searchInput" placeholder="Search Schezwan, Tandoori, Manchurian, or dish..." autocomplete="off">
@@ -244,7 +256,7 @@
             <div class="form-group">
               <label for="paymentMethod">Payment Method <span class="req">*</span></label>
               <select id="paymentMethod" required>
-                <option value="upi" selected>💳 Pay via UPI QR / Google Pay (Required for Pre-Orders)</option>
+                <option value="upi" id="upiPayOption" selected>💳 Pay via UPI QR / Google Pay</option>
                 <option value="cash" id="cashPayOption">💵 Pay Cash at Table / Counter</option>
               </select>
             </div>

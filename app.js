@@ -168,7 +168,8 @@ let potluckState = {
   cart: [],
   selectedCategory: "all",
   selectedDiet: "all",
-  searchQuery: ""
+  searchQuery: "",
+  menuMode: "dinein" // "dinein" or "preorder"
 };
 
 // Broadcast Channel for Inter-Tab Sync
@@ -479,6 +480,54 @@ function setupEventListeners() {
     renderApp();
   });
 
+  // Menu Mode Switcher (Dine-In vs Pre-Order)
+  const modeDineInBtn = document.getElementById('modeDineInBtn');
+  const modePreOrderBtn = document.getElementById('modePreOrderBtn');
+
+  if (modeDineInBtn && modePreOrderBtn) {
+    const handleModeSwitch = (mode) => {
+      if (potluckState.cart.length > 0) {
+        if (!confirm('Switching ordering mode will clear your current cart. Proceed?')) {
+          return;
+        }
+        potluckState.cart = [];
+        saveCartToStorage();
+      }
+
+      potluckState.menuMode = mode;
+      potluckState.selectedCategory = 'all';
+
+      // Automatically sync checkout form choices
+      const orderTypeSelect = document.getElementById('orderType');
+      const preOrderTimeGroup = document.getElementById('preOrderTimeGroup');
+      const preOrderDateTimeInput = document.getElementById('preOrderDateTime');
+      const paymentMethodSelect = document.getElementById('paymentMethod');
+      const cashPayOption = document.getElementById('cashPayOption');
+      const upiPayOption = document.getElementById('upiPayOption');
+
+      if (orderTypeSelect) {
+        orderTypeSelect.value = mode === 'preorder' ? 'preorder' : 'dinein';
+        if (preOrderTimeGroup) preOrderTimeGroup.classList.toggle('hidden', mode !== 'preorder');
+        if (preOrderDateTimeInput) preOrderDateTimeInput.required = (mode === 'preorder');
+
+        if (mode === 'preorder') {
+          paymentMethodSelect.value = 'upi';
+          if (cashPayOption) cashPayOption.disabled = true;
+          if (upiPayOption) upiPayOption.disabled = false;
+        } else {
+          paymentMethodSelect.value = 'cash';
+          if (upiPayOption) upiPayOption.disabled = true;
+          if (cashPayOption) cashPayOption.disabled = false;
+        }
+      }
+      renderApp();
+      showToast(mode === 'preorder' ? '📅 Switched to Pre-Order Specials (UPI Online)' : '🍽️ Switched to Dine-In Menu (Cash Pay)');
+    };
+
+    modeDineInBtn.addEventListener('click', () => handleModeSwitch('dinein'));
+    modePreOrderBtn.addEventListener('click', () => handleModeSwitch('preorder'));
+  }
+
   // Category Tabs
   categoryTabs.addEventListener('click', (e) => {
     const btn = e.target.closest('.tab-btn');
@@ -505,6 +554,7 @@ function setupEventListeners() {
   const preOrderDateTimeInput = document.getElementById('preOrderDateTime');
   const paymentMethodSelect = document.getElementById('paymentMethod');
   const cashPayOption = document.getElementById('cashPayOption');
+  const upiPayOption = document.getElementById('upiPayOption');
 
   if (orderTypeSelect) {
     orderTypeSelect.addEventListener('change', (e) => {
@@ -515,10 +565,13 @@ function setupEventListeners() {
         if (preOrderDateTimeInput) preOrderDateTimeInput.required = true;
         paymentMethodSelect.value = 'upi';
         if (cashPayOption) cashPayOption.disabled = true;
+        if (upiPayOption) upiPayOption.disabled = false;
         showToast('ℹ️ Pre-Orders require mandatory online UPI payment advance.');
       } else {
         if (preOrderDateTimeInput) preOrderDateTimeInput.required = false;
+        paymentMethodSelect.value = 'cash';
         if (cashPayOption) cashPayOption.disabled = false;
+        if (upiPayOption) upiPayOption.disabled = true;
       }
     });
   }
@@ -599,6 +652,11 @@ function handleCheckoutSubmit(e) {
 
   if (orderType === 'preorder' && payment !== 'upi') {
     alert('Pre-orders require online UPI payment advance!');
+    return;
+  }
+
+  if (orderType === 'dinein' && payment !== 'cash') {
+    alert('Dine-In orders require Cash payment at counter or table!');
     return;
   }
 
@@ -727,6 +785,13 @@ function renderCartDrawer() {
 
 function getFilteredDishes() {
   return potluckState.dishes.filter(dish => {
+    // Mode Filter: Separate Dine-In from Pre-Orders
+    if (potluckState.menuMode === 'dinein') {
+      if (dish.category === 'Pre-Order Specials') return false;
+    } else {
+      if (dish.category !== 'Pre-Order Specials') return false;
+    }
+
     const categoryMatch = potluckState.selectedCategory === 'all' || dish.category === potluckState.selectedCategory;
 
     let dietMatch = true;
@@ -756,6 +821,27 @@ function getFilteredDishes() {
 
 function renderApp() {
   updateCartBadges();
+
+  // Mode UI sync
+  const modeDineInBtn = document.getElementById('modeDineInBtn');
+  const modePreOrderBtn = document.getElementById('modePreOrderBtn');
+  if (modeDineInBtn && modePreOrderBtn) {
+    modeDineInBtn.classList.toggle('active', potluckState.menuMode === 'dinein');
+    modePreOrderBtn.classList.toggle('active', potluckState.menuMode === 'preorder');
+  }
+
+  // Adjust Category tabs display based on mode
+  const catTabsContainer = document.getElementById('categoryTabs');
+  if (catTabsContainer) {
+    if (potluckState.menuMode === 'preorder') {
+      catTabsContainer.classList.add('hidden');
+    } else {
+      catTabsContainer.classList.remove('hidden');
+      // Hide Pre-Order Specials button from Dine-In category tabs
+      const preBtn = catTabsContainer.querySelector('[data-category="Pre-Order Specials"]');
+      if (preBtn) preBtn.style.display = 'none';
+    }
+  }
 
   const filteredDishes = getFilteredDishes();
 
@@ -787,7 +873,12 @@ function renderApp() {
 
   let html = '';
 
-  categories.forEach(cat => {
+  const targetCategories = categories.filter(cat => {
+    if (potluckState.menuMode === 'dinein') return cat !== 'Pre-Order Specials';
+    return cat === 'Pre-Order Specials';
+  });
+
+  targetCategories.forEach(cat => {
     const catDishes = filteredDishes.filter(d => d.category === cat);
     if (catDishes.length === 0) return;
 
