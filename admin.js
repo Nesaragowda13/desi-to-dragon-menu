@@ -140,7 +140,7 @@ const INITIAL_DISHES = [
 const adminState = {
   dishes: [],
   orders: [],
-  orderFilter: 'active', // 'active' or 'completed'
+  orderFilter: 'dinein', // 'dinein', 'preorder', or 'completed'
   activeTab: 'orders'
 };
 
@@ -437,9 +437,6 @@ function renderAdminUI() {
 }
 
 function updateAdminStats() {
-  const activeCount = adminState.orders.filter(o => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready').length;
-  const completedCount = adminState.orders.filter(o => o.status === 'completed' || o.status === 'cancelled').length;
-
   const pending = adminState.orders.filter(o => o.status === 'pending').length;
   const preparing = adminState.orders.filter(o => o.status === 'preparing').length;
   const completed = adminState.orders.filter(o => o.status === 'completed').length;
@@ -451,20 +448,29 @@ function updateAdminStats() {
   preparingOrdersCount.textContent = preparing;
   completedOrdersCount.textContent = completed;
   totalRevenueCount.textContent = '₹' + totalRev.toLocaleString('en-IN');
-  liveOrdersBadge.textContent = activeCount;
 
-  const activeBadge = document.getElementById('activeOrdersBadge');
+  // Compute sub-tab counts
+  const dineinCount = adminState.orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled' && o.orderType !== 'preorder').length;
+  const preorderCount = adminState.orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled' && o.orderType === 'preorder').length;
+  const completedCount = adminState.orders.filter(o => o.status === 'completed' || o.status === 'cancelled').length;
+
+  liveOrdersBadge.textContent = dineinCount + preorderCount;
+
+  const dineinBadge = document.getElementById('dineinOrdersBadge');
+  const preorderBadge = document.getElementById('preorderOrdersBadge');
   const completedBadge = document.getElementById('completedOrdersBadge');
-  if (activeBadge) activeBadge.textContent = activeCount;
+  if (dineinBadge) dineinBadge.textContent = dineinCount;
+  if (preorderBadge) preorderBadge.textContent = preorderCount;
   if (completedBadge) completedBadge.textContent = completedCount;
 }
 
 // Render Orders Feed
 function renderOrdersGrid() {
-  const isFilterActive = adminState.orderFilter === 'active';
   const filteredOrders = adminState.orders.filter(order => {
-    if (isFilterActive) {
-      return order.status === 'pending' || order.status === 'preparing' || order.status === 'ready';
+    if (adminState.orderFilter === 'dinein') {
+      return order.status !== 'completed' && order.status !== 'cancelled' && order.orderType !== 'preorder';
+    } else if (adminState.orderFilter === 'preorder') {
+      return order.status !== 'completed' && order.status !== 'cancelled' && order.orderType === 'preorder';
     } else {
       return order.status === 'completed' || order.status === 'cancelled';
     }
@@ -502,7 +508,7 @@ function renderOrdersGrid() {
           <div class="customer-info-line">
             <span class="customer-name">👤 ${escapeHTML(order.customerName)}</span>
           </div>
-          <div class="customer-sub">📧 ${escapeHTML(order.email || 'N/A')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay Counter/Table'}</div>
+          <div class="customer-sub">📍 ${escapeHTML(order.tableNumber || 'Table 1')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay Counter/Table'}</div>
           ${order.orderType === 'preorder' ? `
             <div style="background:rgba(251,191,36,0.18);border:1px solid var(--primary-gold);color:var(--primary-gold);padding:4px 8px;border-radius:4px;font-size:0.78rem;font-weight:800;margin-top:6px;display:flex;align-items:center;gap:4px;">
               <span>📅 ADVANCE PRE-ORDER:</span>

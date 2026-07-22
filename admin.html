@@ -115,14 +115,19 @@
     <section id="ordersTabContent" class="admin-tab-content">
       <div class="orders-header-row">
         <div class="order-sub-tabs">
-          <button class="order-sub-tab active" data-order-filter="active">
-            <i data-lucide="flame" style="color:var(--primary-gold);"></i>
-            <span>Active Kitchen Orders</span>
-            <span class="sub-badge" id="activeOrdersBadge">0</span>
+          <button class="order-sub-tab active" data-order-filter="dinein">
+            <i data-lucide="utensils" style="color:var(--primary-gold);"></i>
+            <span>🍽️ Active Dine-In</span>
+            <span class="sub-badge" id="dineinOrdersBadge">0</span>
+          </button>
+          <button class="order-sub-tab" data-order-filter="preorder">
+            <i data-lucide="calendar" style="color:#00b4d8;"></i>
+            <span>📅 Pre-Orders</span>
+            <span class="sub-badge" id="preorderOrdersBadge">0</span>
           </button>
           <button class="order-sub-tab" data-order-filter="completed">
             <i data-lucide="check-circle-2" style="color:#34d399;"></i>
-            <span>Completed Orders</span>
+            <span>✅ Completed</span>
             <span class="sub-badge" id="completedOrdersBadge">0</span>
           </button>
         </div>

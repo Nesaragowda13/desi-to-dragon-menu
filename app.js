@@ -437,12 +437,12 @@ function triggerOrderReadyNotification(order) {
   // Show Modal
   const modal = document.getElementById('orderReadyModal');
   const orderId = document.getElementById('readyOrderId');
-  const emailEl = document.getElementById('readyCustomerEmail');
+  const tableNoEl = document.getElementById('readyTableNo');
   const closeBtn = document.getElementById('closeOrderReadyBtn');
 
   if (modal && orderId) {
     orderId.textContent = '#' + order.id.slice(-6);
-    if (emailEl) emailEl.textContent = order.email || 'customer@example.com';
+    if (tableNoEl) tableNoEl.textContent = order.tableNumber || 'Table 1';
     modal.classList.remove('hidden');
 
     if (closeBtn) {
@@ -574,7 +574,7 @@ function handleCheckoutSubmit(e) {
   }
 
   const name = document.getElementById('customerName').value.trim();
-  const email = document.getElementById('customerEmail').value.trim();
+  const tableNumber = document.getElementById('tableNumber') ? document.getElementById('tableNumber').value.trim() : 'Table 1';
   const orderType = document.getElementById('orderType') ? document.getElementById('orderType').value : 'dinein';
   const preOrderDateTime = document.getElementById('preOrderDateTime') ? document.getElementById('preOrderDateTime').value : '';
   const payment = document.getElementById('paymentMethod').value;
@@ -594,7 +594,7 @@ function handleCheckoutSubmit(e) {
   const order = {
     id: 'ORD-' + Date.now(),
     customerName: name,
-    email: email,
+    tableNumber: tableNumber,
     orderType: orderType,
     preOrderDateTime: orderType === 'preorder' ? preOrderDateTime : null,
     paymentMethod: payment,
@@ -643,8 +643,8 @@ function handleCheckoutSubmit(e) {
   // Show Order Placed Modal
   receiptOrderId.textContent = '#' + order.id.slice(-6);
   receiptCustomerName.textContent = order.customerName;
-  const receiptEmailEl = document.getElementById('receiptCustomerEmail');
-  if (receiptEmailEl) receiptEmailEl.textContent = order.email;
+  const receiptTableNoEl = document.getElementById('receiptTableNo');
+  if (receiptTableNoEl) receiptTableNoEl.textContent = order.tableNumber || 'Table 1';
   receiptTotalAmount.textContent = '₹' + order.totalAmount;
   orderPlacedModal.classList.remove('hidden');
 
