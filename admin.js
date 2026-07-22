@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DESI TO DRAGON - OWNER ADMIN DASHBOARD JS
  */
 
@@ -189,6 +189,8 @@ function triggerSystemNotification(title, body) {
   }
 }
 
+let isInitialLoad = true;
+
 async function fetchInitialSupabaseOrders() {
   try {
     const { data, error } = await supabaseClient.from('orders').select('*').order('timestamp', { ascending: false });
@@ -198,6 +200,9 @@ async function fetchInitialSupabaseOrders() {
     }
     
     if (data && data.length > 0) {
+      let hasNewOrders = false;
+      let stateChanged = false;
+
       data.forEach(dbOrder => {
         const o = {
           id: dbOrder.id,
@@ -212,16 +217,32 @@ async function fetchInitialSupabaseOrders() {
           timestamp: dbOrder.timestamp
         };
         
-        if (!adminState.orders.find(existing => existing.id === o.id)) {
+        const existing = adminState.orders.find(existing => existing.id === o.id);
+        if (!existing) {
           adminState.orders.push(o);
+          stateChanged = true;
+          if (!isInitialLoad) hasNewOrders = true;
         } else {
-          const existing = adminState.orders.find(existing => existing.id === o.id);
-          existing.status = o.status;
+          // Sync status from cloud if it changed (e.g. from another admin device)
+          if (existing.status !== o.status) {
+            existing.status = o.status;
+            stateChanged = true;
+          }
         }
       });
       
-      saveOrders();
-      renderAdminUI();
+      if (stateChanged || isInitialLoad) {
+        // Ensure they are sorted newest first
+        adminState.orders.sort((a, b) => b.timestamp - a.timestamp);
+        saveOrders();
+        renderAdminUI();
+        
+        if (hasNewOrders && !isInitialLoad) {
+          playNotificationSound();
+          triggerSystemNotification("Desi to Dragon", "🛎️ NEW ORDER RECEIVED!");
+        }
+      }
+      isInitialLoad = false;
     }
   } catch (err) {
     console.error('Initial fetch exception:', err);
