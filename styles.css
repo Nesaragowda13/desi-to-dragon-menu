@@ -3,19 +3,19 @@
    ========================================================================== */
 
 :root {
-  /* Color Palette - Desi to Dragon Fiery Theme */
-  --bg-dark: #090705;
-  --bg-surface: #14100c;
-  --bg-card: rgba(24, 19, 14, 0.82);
-  --bg-card-hover: rgba(38, 29, 21, 0.9);
-  --border-subtle: rgba(251, 191, 36, 0.15);
-  --border-glow: rgba(239, 68, 68, 0.35);
+  /* Color Palette - Premium Sea Blue & Gold Theme (Blue Circle matching) */
+  --bg-dark: #040914;
+  --bg-surface: #0a1329;
+  --bg-card: rgba(10, 20, 42, 0.85);
+  --bg-card-hover: rgba(18, 34, 68, 0.9);
+  --border-subtle: rgba(0, 180, 216, 0.2);
+  --border-glow: rgba(0, 180, 216, 0.4);
   
-  --primary-gold: #fbbf24;
-  --primary-amber: #d97706;
-  --primary-copper: #ea580c;
-  --primary-flame: #ef4444;
-  --primary-dark-red: #991b1b;
+  --primary-gold: #ffd700;
+  --primary-amber: #00b4d8;
+  --primary-copper: #0077b6;
+  --primary-flame: #0096c7;
+  --primary-dark-red: #03045e;
 
   /* Dietary & Fusion Badges */
   --diet-veg: #10b981;
@@ -26,26 +26,26 @@
   --diet-nonveg-bg: rgba(239, 68, 68, 0.18);
   --diet-fusion: #f59e0b;
   --diet-fusion-bg: rgba(245, 158, 11, 0.2);
-  --diet-gf: #3b82f6;
-  --diet-gf-bg: rgba(59, 130, 246, 0.15);
+  --diet-gf: #00b4d8;
+  --diet-gf-bg: rgba(0, 180, 216, 0.15);
 
   /* Typography */
   --font-dragon: 'Cinzel', serif;
   --font-heading: 'Outfit', -apple-system, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
 
-  --text-primary: #fef3c7;
-  --text-secondary: #d6d3d1;
-  --text-muted: #a8a29e;
+  --text-primary: #e0f2fe;
+  --text-secondary: #bae6fd;
+  --text-muted: #7dd3fc;
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 24px;
   --radius-full: 9999px;
 
-  --shadow-flame: 0 10px 30px -10px rgba(239, 68, 68, 0.4);
-  --shadow-gold: 0 10px 25px -5px rgba(251, 191, 36, 0.25);
-  --shadow-card: 0 14px 40px -8px rgba(0, 0, 0, 0.65);
+  --shadow-flame: 0 10px 30px -10px rgba(0, 180, 216, 0.4);
+  --shadow-gold: 0 10px 25px -5px rgba(255, 215, 0, 0.25);
+  --shadow-card: 0 14px 40px -8px rgba(0, 0, 0, 0.75);
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -81,7 +81,7 @@ body {
 .shape-fire1 {
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, #b91c1c 0%, transparent 70%);
+  background: radial-gradient(circle, #0077b6 0%, transparent 70%);
   top: -120px;
   left: -120px;
 }
@@ -89,7 +89,7 @@ body {
 .shape-fire2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #d97706 0%, transparent 70%);
+  background: radial-gradient(circle, #03045e 0%, transparent 70%);
   bottom: 0%;
   right: -80px;
   animation-delay: -7s;
@@ -98,7 +98,7 @@ body {
 .shape-ember {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, #ea580c 0%, transparent 70%);
+  background: radial-gradient(circle, #00b4d8 0%, transparent 70%);
   top: 45%;
   left: 25%;
   animation-delay: -14s;
@@ -311,6 +311,7 @@ body {
 .accent-gold {
   background: linear-gradient(135deg, #fef08a, var(--primary-gold), var(--primary-amber));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
