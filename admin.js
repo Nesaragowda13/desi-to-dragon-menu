@@ -579,7 +579,7 @@ function renderMenuTable(query = '') {
   adminMenuTableBody.innerHTML = list.map(dish => `
     <tr class="${dish.isSoldOut ? 'row-sold-out' : ''}" data-id="${dish.id}">
       <td>
-        <div class="table-dish-title">${escapeHTML(dish.name)}</div>
+        <div class="table-dish-title">${(dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials') ? '🐉 ' : ''}${escapeHTML(dish.name)}</div>
         <div class="table-dish-sub">${dish.dietary === 'non-veg' ? '🔴 Non-Veg' : '🟢 Veg'} • ${dish.servings}</div>
       </td>
       <td><span class="category-chip">${escapeHTML(dish.category)}</span></td>

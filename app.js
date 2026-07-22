@@ -821,13 +821,16 @@ function createDishCardHTML(dish) {
   const cartItem = potluckState.cart.find(c => c.id === dish.id);
   const qtyInCart = cartItem ? cartItem.qty : 0;
 
+  const isDragonSpecial = dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials';
+  const dragonDecor = isDragonSpecial ? '<span class="dragon-decor-badge">🐉</span>' : '';
+
   return `
     <article class="dish-card ${dish.isSoldOut ? 'sold-out-card' : ''}" data-id="${dish.id}">
       ${dish.isSoldOut ? `<div class="sold-out-overlay"><span>⛔ SOLD OUT / FINISHED</span></div>` : ''}
 
       <div class="dish-top">
         <div class="dish-header">
-          <h3 class="dish-name">${escapeHTML(dish.name)}</h3>
+          <h3 class="dish-name">${dragonDecor}${escapeHTML(dish.name)}</h3>
           <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
             ${fusionBadgeHTML}
             ${dietBadgeHTML}
