@@ -2,6 +2,11 @@
  * DESI TO DRAGON - CUSTOMER ORDERING PORTAL JS
  */
 
+// Supabase Configuration
+const SUPABASE_URL = 'https://jwbjpsqdnfguzrphyxmq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Q9jsizgbsAKvv0e26mBvyQ_4uoKXTJO';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
   {
@@ -357,42 +362,26 @@ function setupBroadcastListener() {
   setInterval(fetchCloudStock, 8000);
   setInterval(fetchCloudOrderStatus, 5000);
 
-  // 🔔 Listen via Cloud Realtime EventSource Stream for Stock & Status Locks
+  // 🔔 Listen via Supabase Realtime for Stock & Status Locks
+  // Removing ntfy for stock and status updates and moving to Supabase where needed later.
+  // We'll leave local Fallback channel.
+  // 🌐 Listen to Order Status Cloud Stream via Supabase Realtime
   try {
-    const stockEventSource = new EventSource('https://ntfy.envs.net/desidragon_stock_v2/json');
-    stockEventSource.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload && payload.message) {
-          const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
-            updateCustomerDishes(msg.dishes);
-          } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
-            const d = potluckState.dishes.find(item => item.id === msg.dishId);
-            if (d) {
-              d.isSoldOut = !!msg.isSoldOut;
-              localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
-              renderApp();
-            }
+    supabase.channel('public:orders')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
+        const activeOrderId = localStorage.getItem('desi_to_dragon_active_order_id');
+        if (activeOrderId && payload.new.id === activeOrderId) {
+          if (payload.new.status === 'ready') {
+            showToast('✅ Your order is ready!', 8000);
+            playReadyChimeSound();
+            localStorage.removeItem('desi_to_dragon_active_order_id');
           }
         }
-      } catch (err) {}
-    };
-  } catch (err) {}
-
-  // 🌐 Listen to Order Status Cloud Stream
-  try {
-    const statusEventSource = new EventSource('https://ntfy.envs.net/desidragon_status_v2/json');
-    statusEventSource.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload && payload.message) {
-          const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          processStatusPayload(msg);
-        }
-      } catch (err) {}
-    };
-  } catch (err) {}
+      })
+      .subscribe();
+  } catch (err) {
+    console.log('Supabase real-time status sync error:', err);
+  }
 
   window.addEventListener('storage', (e) => {
     if (e.key === 'desi_to_dragon_dishes_2026') {
@@ -403,56 +392,11 @@ function setupBroadcastListener() {
 }
 
 function fetchCloudStock() {
-  fetch('https://ntfy.envs.net/desidragon_stock_v2/json?poll=1')
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split('\n');
-      lines.forEach(line => {
-        if (!line) return;
-        try {
-          const payload = JSON.parse(line);
-          if (payload && payload.message) {
-            const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-            if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
-              updateCustomerDishes(msg.dishes);
-            } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
-              const d = potluckState.dishes.find(item => item.id === msg.dishId);
-              if (d) {
-                d.isSoldOut = !!msg.isSoldOut;
-                localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
-                renderApp();
-              }
-            }
-          }
-        } catch (e) {}
-      });
-    })
-    .catch(e => console.log('Error fetching cloud stock:', e));
+  // Using Supabase now, stock syncing can be implemented later.
 }
 
 function fetchCloudOrderStatus() {
-  fetch('https://ntfy.envs.net/desidragon_status_v2/json?poll=1')
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split('\n');
-      lines.forEach(line => {
-        if (!line) return;
-        try {
-          const payload = JSON.parse(line);
-          if (payload && payload.message) {
-            const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-            if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
-              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(msg.orders));
-              checkActiveOrderStatus(msg.orders);
-              if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
-                renderMyOrdersHistory();
-              }
-            }
-          }
-        } catch (e) {}
-      });
-    })
-    .catch(e => console.log('Error fetching order status:', e));
+  // Supabase Realtime handles status.
 }
 
 // Check Customer Active Order Status
@@ -797,15 +741,26 @@ function handleCheckoutSubmit(e) {
     syncChannel.postMessage({ type: 'NEW_ORDER', order: order });
   }
 
-  // 🌐 Send Order to Cloud Realtime Endpoint (Reaches Owner Dashboard on ANY device/network)
+  // 🌐 Send Order to Supabase SQL Database (Reaches Owner Dashboard instantly on ANY device)
   try {
-    fetch('https://ntfy.envs.net/desidragon_orders_v2', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ type: 'NEW_ORDER', order: order })
-    }).catch(err => console.log('Cloud sync error:', err));
+    const dbOrder = {
+      id: order.id,
+      customer_name: order.customerName,
+      table_number: order.tableNumber,
+      order_type: order.orderType,
+      pre_order_datetime: order.preOrderDateTime,
+      payment_method: order.paymentMethod,
+      total_amount: order.totalAmount,
+      items: order.items,
+      status: order.status,
+      timestamp: order.timestamp
+    };
+    
+    supabase.from('orders').insert([dbOrder]).then(({ error }) => {
+      if (error) console.error('Supabase insert error:', error);
+    });
   } catch (err) {
-    console.log('Cloud fetch exception:', err);
+    console.error('Supabase insert exception:', err);
   }
 
   // Save order to customer history

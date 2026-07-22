@@ -181,7 +181,8 @@ const toastMsg = document.getElementById('toastMsg');
 document.addEventListener('DOMContentLoaded', () => {
   loadDataFromStorage();
   setupEventListeners();
-  setupBroadcastListener();
+  fetchInitialSupabaseOrders();
+  setupSupabaseRealtime();
   renderAdminUI();
 
   if (window.Notification && Notification.permission !== 'granted') {
@@ -245,21 +246,26 @@ function saveDishes() {
 function saveOrders() {
   localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
   if (syncChannel) syncChannel.postMessage({ type: 'ORDERS_UPDATED', orders: adminState.orders });
+}
 
-  // Create a compact map of all orders to their statuses
-  const statusMap = {};
-  adminState.orders.forEach(o => {
-    statusMap[o.id] = o.status;
-  });
+function updateCloudOrderStatusMap(orderId, newStatus) {
+  // Update status locally
+  const order = adminState.orders.find(o => o.id === orderId);
+  if (order) {
+    order.status = newStatus;
+  }
+  
+  saveOrders();
+  renderAdminUI();
 
-  // 🌐 Send Status Update to Cloud Realtime Endpoint
+  // 🌐 Send Status Update to Supabase Database
   try {
-    fetch('https://ntfy.envs.net/desidragon_status_v2', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ type: 'ORDERS_STATUS_MAP', statuses: statusMap })
-    }).catch(err => console.log('Cloud status sync error:', err));
-  } catch (e) { console.log('Status sync exception:', e); }
+    supabase.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
+      if (error) console.error('Supabase update status error:', error);
+    });
+  } catch (err) {
+    console.log('Supabase status fetch exception:', err);
+  }
 }
 
 function triggerSystemNotification(title, body) {
@@ -268,132 +274,91 @@ function triggerSystemNotification(title, body) {
   }
 }
 
-function setupBroadcastListener() {
-  // Listen via BroadcastChannel (for same device)
-  if (syncChannel) {
-    syncChannel.onmessage = (event) => {
-      if (event.data.type === 'NEW_ORDER') {
-        processNewOrder(event.data.order);
-      } else if (event.data.type === 'ORDERS_UPDATED' || event.data.type === 'DISHES_UPDATED') {
-        loadDataFromStorage();
-        renderAdminUI();
-      }
-    };
-  }
-
-  // 🌐 Poll Cloud Order History on Startup (Retrieves orders placed while offline/away)
-  fetchCloudOrdersHistory();
-  fetchCloudOrderStatus();
-  // Polling removed to prevent ntfy.sh IP rate limiting and blocking. SSE (EventSource) handles real-time updates!
-
-  // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
+async function fetchInitialSupabaseOrders() {
   try {
-    const cloudEventSource = new EventSource('https://ntfy.envs.net/desidragon_orders_v2/json');
-    cloudEventSource.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload && payload.message) {
-          const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
-            processNewOrder(orderMsg.order);
-          }
+    const { data, error } = await supabase.from('orders').select('*').order('timestamp', { ascending: false });
+    if (error) {
+      console.error('Error fetching initial orders:', error);
+      return;
+    }
+    
+    if (data && data.length > 0) {
+      data.forEach(dbOrder => {
+        const o = {
+          id: dbOrder.id,
+          customerName: dbOrder.customer_name,
+          tableNumber: dbOrder.table_number,
+          orderType: dbOrder.order_type,
+          preOrderDateTime: dbOrder.pre_order_datetime,
+          paymentMethod: dbOrder.payment_method,
+          totalAmount: dbOrder.total_amount,
+          items: dbOrder.items,
+          status: dbOrder.status,
+          timestamp: dbOrder.timestamp
+        };
+        
+        if (!adminState.orders.find(existing => existing.id === o.id)) {
+          adminState.orders.push(o);
+        } else {
+          const existing = adminState.orders.find(existing => existing.id === o.id);
+          existing.status = o.status;
         }
-      } catch (err) {
-        console.log('Error parsing cloud event:', err);
-      }
-    };
-  } catch (err) {
-    console.log('EventSource error:', err);
-  }
-
-  // 🌐 Listen to Order Status Cloud Stream (for multi-admin sync)
-  try {
-    const statusEventSource = new EventSource('https://ntfy.envs.net/desidragon_status_v2/json');
-    statusEventSource.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload && payload.message) {
-          const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          if (msg && msg.type === 'ORDERS_STATUS_MAP' && msg.statuses) {
-            let updated = false;
-            adminState.orders.forEach(o => {
-              if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
-                o.status = msg.statuses[o.id];
-                updated = true;
-              }
-            });
-            if (updated) {
-              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
-              renderAdminUI();
-            }
-          }
-        }
-      } catch (err) {}
-    };
-  } catch (err) {}
-
-  // Listen via LocalStorage Storage Event
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'desi_to_dragon_orders_2026' || e.key === 'desi_to_dragon_dishes_2026') {
-      loadDataFromStorage();
+      });
+      
+      saveOrders();
       renderAdminUI();
     }
-  });
+  } catch (err) {
+    console.error('Initial fetch exception:', err);
+  }
 }
 
-// Fetch Cloud Order Status Map
-function fetchCloudOrderStatus() {
-  fetch('https://ntfy.envs.net/desidragon_status_v2/json?poll=1')
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split('\n');
-      let updated = false;
-      lines.forEach(line => {
-        if (!line) return;
-        try {
-          const payload = JSON.parse(line);
-          if (payload && payload.message) {
-            const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-            if (msg && msg.type === 'ORDERS_STATUS_MAP' && msg.statuses) {
-              adminState.orders.forEach(o => {
-                if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
-                  o.status = msg.statuses[o.id];
-                  updated = true;
-                }
-              });
-            }
+function setupSupabaseRealtime() {
+  try {
+    supabase.channel('public:orders')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+        const dbOrder = payload.new;
+        const o = {
+          id: dbOrder.id,
+          customerName: dbOrder.customer_name,
+          tableNumber: dbOrder.table_number,
+          orderType: dbOrder.order_type,
+          preOrderDateTime: dbOrder.pre_order_datetime,
+          paymentMethod: dbOrder.payment_method,
+          totalAmount: dbOrder.total_amount,
+          items: dbOrder.items,
+          status: dbOrder.status,
+          timestamp: dbOrder.timestamp
+        };
+        
+        if (!adminState.orders.find(existing => existing.id === o.id)) {
+          adminState.orders.unshift(o);
+          saveOrders();
+          renderAdminUI();
+          
+          if (o.status === 'pending' || o.status === 'preparing') {
+             triggerSystemNotification("Desi to Dragon", `New Order from ${o.customerName}`);
+             playOrderChimeSound();
           }
-        } catch (e) {}
-      });
-      if (updated) {
-        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
-        renderAdminUI();
-      }
-    })
-    .catch(e => console.log('Error polling status map:', e));
+        }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
+         const dbOrder = payload.new;
+         const existing = adminState.orders.find(existing => existing.id === dbOrder.id);
+         if (existing) {
+           existing.status = dbOrder.status;
+           saveOrders();
+           renderAdminUI();
+         }
+      })
+      .subscribe();
+  } catch (err) {
+    console.error('Supabase Realtime error:', err);
+  }
 }
 
-// Fetch Cloud Orders History
-function fetchCloudOrdersHistory() {
-  fetch('https://ntfy.envs.net/desidragon_orders_v2/json?poll=1')
-    .then(res => res.text())
-    .then(text => {
-      const lines = text.trim().split('\n');
-      lines.forEach(line => {
-        if (!line) return;
-        try {
-          const payload = JSON.parse(line);
-          if (payload && payload.message) {
-            const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-            if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
-              processNewOrder(orderMsg.order);
-            }
-          }
-        } catch (e) {}
-      });
-    })
-    .catch(e => console.log('Error polling cloud orders:', e));
-}
+function fetchCloudOrderStatus() {}
+function fetchCloudOrdersHistory() {}
 
 function processNewOrder(newOrder) {
   const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
@@ -403,7 +368,6 @@ function processNewOrder(newOrder) {
     adminState.orders.unshift(newOrder);
     localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
 
-    // Only play sound & notifications if the order was placed after page load (or within the last 30 seconds)
     const isRecent = newOrder.timestamp && (newOrder.timestamp > pageLoadTime - 30000);
     if (isRecent) {
       playOrderChimeSound();
