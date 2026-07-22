@@ -4,7 +4,7 @@
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://jwbjpsqdnfguzrphyxmq.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Q9jsizgbsAKvv0e26mBvyQ_4uoKXTJO';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3Ympwc3FkbmZndXpycGh5eG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDk2MTgsImV4cCI6MjEwMDI4NTYxOH0.kkL54Bz_iQ_jX_8_3X_qMJXnJ0JhYnlw0GBo6N7vxVs';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Initial Default Menu Items with Prices
