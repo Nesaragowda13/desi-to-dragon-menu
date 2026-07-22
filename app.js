@@ -1105,16 +1105,7 @@ window.resetFilters = function() {
 
 function updateMyOrdersButtonVisibility() {
   if (!myOrdersBtn) return;
-  let myHistory = [];
-  try {
-    myHistory = JSON.parse(localStorage.getItem('desi_to_dragon_customer_orders_history') || '[]');
-  } catch (e) { myHistory = []; }
-  
-  if (myHistory.length > 0) {
-    myOrdersBtn.classList.remove('hidden');
-  } else {
-    myOrdersBtn.classList.add('hidden');
-  }
+  myOrdersBtn.classList.remove('hidden');
 }
 
 function renderMyOrdersHistory() {
