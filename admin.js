@@ -193,9 +193,24 @@ function loadDataFromStorage() {
   // Load Dishes
   const savedDishes = localStorage.getItem('desi_to_dragon_dishes_2026');
   if (savedDishes) {
-    try { adminState.dishes = JSON.parse(savedDishes); } catch (e) { adminState.dishes = INITIAL_DISHES; }
+    try { 
+      adminState.dishes = JSON.parse(savedDishes); 
+      let merged = false;
+      INITIAL_DISHES.forEach(init => {
+        if (!adminState.dishes.some(d => d.id === init.id)) {
+          adminState.dishes.push(init);
+          merged = true;
+        }
+      });
+      if (merged) {
+        saveDishes();
+      }
+    } catch (e) { 
+      adminState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES)); 
+      saveDishes();
+    }
   } else {
-    adminState.dishes = INITIAL_DISHES;
+    adminState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES));
     saveDishes();
   }
 

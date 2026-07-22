@@ -261,6 +261,21 @@ function loadDishesFromStorage() {
   localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
 }
 
+function updateCustomerDishes(newDishes) {
+  if (!Array.isArray(newDishes) || newDishes.length === 0) return;
+  potluckState.dishes = newDishes;
+  
+  // Merge initial dishes to ensure defaults are never lost
+  INITIAL_DISHES.forEach(init => {
+    if (!potluckState.dishes.some(d => d.id === init.id)) {
+      potluckState.dishes.push(init);
+    }
+  });
+  
+  localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
+  renderApp();
+}
+
 function loadCartFromStorage() {
   const savedCart = localStorage.getItem('desi_to_dragon_customer_cart');
   if (savedCart) {
@@ -329,8 +344,7 @@ function setupBroadcastListener() {
   if (syncChannel) {
     syncChannel.onmessage = (e) => {
       if (e.data.type === 'DISHES_UPDATED') {
-        potluckState.dishes = e.data.dishes;
-        renderApp();
+        updateCustomerDishes(e.data.dishes);
       } else if (e.data.type === 'ORDERS_UPDATED' || e.data.type === 'ORDERS_STATUS_MAP') {
         processStatusPayload(e.data);
       }
@@ -352,9 +366,7 @@ function setupBroadcastListener() {
         if (payload && payload.message) {
           const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
           if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
-            potluckState.dishes = msg.dishes;
-            localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
-            renderApp();
+            updateCustomerDishes(msg.dishes);
           } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
             const d = potluckState.dishes.find(item => item.id === msg.dishId);
             if (d) {
@@ -402,9 +414,7 @@ function fetchCloudStock() {
           if (payload && payload.message) {
             const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
             if (msg && msg.type === 'DISHES_UPDATED' && Array.isArray(msg.dishes) && msg.dishes.length > 0) {
-              potluckState.dishes = msg.dishes;
-              localStorage.setItem('desi_to_dragon_dishes_2026', JSON.stringify(potluckState.dishes));
-              renderApp();
+              updateCustomerDishes(msg.dishes);
             } else if (msg && msg.type === 'STOCK_UPDATE' && msg.dishId) {
               const d = potluckState.dishes.find(item => item.id === msg.dishId);
               if (d) {
