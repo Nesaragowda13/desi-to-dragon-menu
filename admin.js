@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   fetchInitialSupabaseOrders();
   setupSupabaseRealtime();
+  setInterval(fetchInitialSupabaseOrders, 8000);
   renderAdminUI();
 
   if (window.Notification && Notification.permission !== 'granted') {
