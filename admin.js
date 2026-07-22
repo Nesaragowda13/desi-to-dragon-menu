@@ -284,8 +284,7 @@ function setupBroadcastListener() {
   // 🌐 Poll Cloud Order History on Startup (Retrieves orders placed while offline/away)
   fetchCloudOrdersHistory();
   fetchCloudOrderStatus();
-  setInterval(fetchCloudOrdersHistory, 6000); // 6-second backup cloud poll
-  setInterval(fetchCloudOrderStatus, 5000);  // 5-second status poll
+  // Polling removed to prevent ntfy.sh IP rate limiting and blocking. SSE (EventSource) handles real-time updates!
 
   // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
   try {
