@@ -801,7 +801,7 @@ function handleCheckoutSubmit(e) {
   try {
     fetch('https://ntfy.sh/desi_to_dragon_orders_2026', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'NEW_ORDER', order: order })
     }).catch(err => console.log('Cloud sync error:', err));
   } catch (err) {

@@ -252,13 +252,13 @@ function saveOrders() {
     statusMap[o.id] = o.status;
   });
 
-  // 🌐 Broadcast Order Status Changes to Cloud Stream for Customer Smartphones
+  // 🌐 Send Status Update to Cloud Realtime Endpoint
   try {
     fetch('https://ntfy.sh/desi_to_dragon_status_2026', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'ORDERS_STATUS_MAP', statuses: statusMap })
-    }).catch(e => console.log('Status cloud error:', e));
+    }).catch(err => console.log('Cloud status sync error:', err));
   } catch (e) { console.log('Status sync exception:', e); }
 }
 
