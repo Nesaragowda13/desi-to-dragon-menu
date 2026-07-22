@@ -283,7 +283,9 @@ function setupBroadcastListener() {
 
   // 🌐 Poll Cloud Order History on Startup (Retrieves orders placed while offline/away)
   fetchCloudOrdersHistory();
+  fetchCloudOrderStatus();
   setInterval(fetchCloudOrdersHistory, 6000); // 6-second backup cloud poll
+  setInterval(fetchCloudOrderStatus, 5000);  // 5-second status poll
 
   // 🌐 Listen via Cloud Realtime EventSource Stream (Reaches Owner Dashboard on ANY device/network)
   try {
@@ -305,6 +307,32 @@ function setupBroadcastListener() {
     console.log('EventSource error:', err);
   }
 
+  // 🌐 Listen to Order Status Cloud Stream (for multi-admin sync)
+  try {
+    const statusEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_status_2026/json');
+    statusEventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload && payload.message) {
+          const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+          if (msg && msg.type === 'ORDERS_STATUS_MAP' && msg.statuses) {
+            let updated = false;
+            adminState.orders.forEach(o => {
+              if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
+                o.status = msg.statuses[o.id];
+                updated = true;
+              }
+            });
+            if (updated) {
+              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
+              renderAdminUI();
+            }
+          }
+        }
+      } catch (err) {}
+    };
+  } catch (err) {}
+
   // Listen via LocalStorage Storage Event
   window.addEventListener('storage', (e) => {
     if (e.key === 'desi_to_dragon_orders_2026' || e.key === 'desi_to_dragon_dishes_2026') {
@@ -312,6 +340,38 @@ function setupBroadcastListener() {
       renderAdminUI();
     }
   });
+}
+
+// Fetch Cloud Order Status Map
+function fetchCloudOrderStatus() {
+  fetch('https://ntfy.sh/desi_to_dragon_status_2026/json?poll=1')
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.trim().split('\n');
+      let updated = false;
+      lines.forEach(line => {
+        if (!line) return;
+        try {
+          const payload = JSON.parse(line);
+          if (payload && payload.message) {
+            const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
+            if (msg && msg.type === 'ORDERS_STATUS_MAP' && msg.statuses) {
+              adminState.orders.forEach(o => {
+                if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
+                  o.status = msg.statuses[o.id];
+                  updated = true;
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      });
+      if (updated) {
+        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
+        renderAdminUI();
+      }
+    })
+    .catch(e => console.log('Error polling status map:', e));
 }
 
 // Fetch Cloud Orders History
