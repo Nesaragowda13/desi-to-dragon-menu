@@ -366,8 +366,16 @@ function setupEventListeners() {
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const target = btn.dataset.tab;
-      document.getElementById('ordersTabContent').classList.toggle('hidden', target !== 'orders');
+      document.getElementById('ordersTabContent').classList.toggle('hidden', target === 'menu');
       document.getElementById('menuTabContent').classList.toggle('hidden', target !== 'menu');
+      adminState.activeTab = target;
+
+      if (target === 'orders') {
+        adminState.orderFilter = 'dinein';
+      } else if (target === 'preorders') {
+        adminState.orderFilter = 'preorder';
+      }
+      renderAdminUI();
     });
   });
 
@@ -465,19 +473,46 @@ function updateAdminStats() {
   completedOrdersCount.textContent = completed;
   totalRevenueCount.textContent = '₹' + totalRev.toLocaleString('en-IN');
 
-  // Compute sub-tab counts
-  const dineinCount = adminState.orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled' && o.orderType !== 'preorder').length;
-  const preorderCount = adminState.orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled' && o.orderType === 'preorder').length;
-  const completedCount = adminState.orders.filter(o => o.status === 'completed' || o.status === 'cancelled').length;
+  // Compute counts for active dine-in and preorders
+  const activeDinein = adminState.orders.filter(o => (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready') && o.orderType !== 'preorder').length;
+  const activePreorders = adminState.orders.filter(o => (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready') && o.orderType === 'preorder').length;
 
-  liveOrdersBadge.textContent = dineinCount + preorderCount;
+  liveOrdersBadge.textContent = activeDinein;
+  const preordersBadgeEl = document.getElementById('preordersBadge');
+  if (preordersBadgeEl) preordersBadgeEl.textContent = activePreorders;
 
+  // Toggle sub-tab visibility based on active tab
+  const dineinSubtab = document.querySelector('[data-order-filter="dinein"]');
+  const preorderSubtab = document.querySelector('[data-order-filter="preorder"]');
+  const completedSubtab = document.querySelector('[data-order-filter="completed"]');
+
+  if (dineinSubtab && preorderSubtab && completedSubtab) {
+    if (adminState.activeTab === 'orders') {
+      dineinSubtab.classList.remove('hidden');
+      preorderSubtab.classList.add('hidden');
+      dineinSubtab.classList.add('active');
+      preorderSubtab.classList.remove('active');
+    } else if (adminState.activeTab === 'preorders') {
+      dineinSubtab.classList.add('hidden');
+      preorderSubtab.classList.remove('hidden');
+      dineinSubtab.classList.remove('active');
+      preorderSubtab.classList.add('active');
+    }
+  }
+
+  // Update badges on sub-tabs
   const dineinBadge = document.getElementById('dineinOrdersBadge');
   const preorderBadge = document.getElementById('preorderOrdersBadge');
   const completedBadge = document.getElementById('completedOrdersBadge');
-  if (dineinBadge) dineinBadge.textContent = dineinCount;
-  if (preorderBadge) preorderBadge.textContent = preorderCount;
-  if (completedBadge) completedBadge.textContent = completedCount;
+
+  if (dineinBadge) dineinBadge.textContent = activeDinein;
+  if (preorderBadge) preorderBadge.textContent = activePreorders;
+
+  if (completedBadge) {
+    const completedDinein = adminState.orders.filter(o => (o.status === 'completed' || o.status === 'cancelled') && o.orderType !== 'preorder').length;
+    const completedPre = adminState.orders.filter(o => (o.status === 'completed' || o.status === 'cancelled') && o.orderType === 'preorder').length;
+    completedBadge.textContent = adminState.activeTab === 'orders' ? completedDinein : completedPre;
+  }
 }
 
 // Render Orders Feed
@@ -488,7 +523,12 @@ function renderOrdersGrid() {
     } else if (adminState.orderFilter === 'preorder') {
       return order.status !== 'completed' && order.status !== 'cancelled' && order.orderType === 'preorder';
     } else {
-      return order.status === 'completed' || order.status === 'cancelled';
+      // Completed filter
+      if (adminState.activeTab === 'orders') {
+        return (order.status === 'completed' || order.status === 'cancelled') && order.orderType !== 'preorder';
+      } else {
+        return (order.status === 'completed' || order.status === 'cancelled') && order.orderType === 'preorder';
+      }
     }
   });
 
