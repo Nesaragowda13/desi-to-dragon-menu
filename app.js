@@ -218,6 +218,13 @@ const shareBtn = document.getElementById('shareBtn');
 const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 
+// My Orders History Elements
+const myOrdersBtn = document.getElementById('myOrdersBtn');
+const myOrdersModal = document.getElementById('myOrdersModal');
+const closeMyOrdersBtn = document.getElementById('closeMyOrdersBtn');
+const closeMyOrdersBtnBottom = document.getElementById('closeMyOrdersBtnBottom');
+const myOrdersHistoryContainer = document.getElementById('myOrdersHistoryContainer');
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   loadDishesFromStorage();
@@ -225,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   setupBroadcastListener();
   renderApp();
+  updateMyOrdersButtonVisibility();
 
   if (window.Notification && Notification.permission !== 'granted') {
     Notification.requestPermission();
@@ -271,7 +279,11 @@ function setupBroadcastListener() {
         potluckState.dishes = e.data.dishes;
         renderApp();
       } else if (e.data.type === 'ORDERS_UPDATED') {
+        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(e.data.orders));
         checkActiveOrderStatus(e.data.orders);
+        if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
+          renderMyOrdersHistory();
+        }
       }
     };
   }
@@ -316,7 +328,11 @@ function setupBroadcastListener() {
         if (payload && payload.message) {
           const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
           if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
+            localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(msg.orders));
             checkActiveOrderStatus(msg.orders);
+            if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
+              renderMyOrdersHistory();
+            }
           }
         }
       } catch (err) {}
@@ -373,7 +389,11 @@ function fetchCloudOrderStatus() {
           if (payload && payload.message) {
             const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
             if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
+              localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(msg.orders));
               checkActiveOrderStatus(msg.orders);
+              if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
+                renderMyOrdersHistory();
+              }
             }
           }
         } catch (e) {}
@@ -410,8 +430,15 @@ function checkActiveOrderStatus(orders) {
         notifiedReadyOrders.add(order.id);
         triggerOrderReadyNotification(order);
       }
-    } else if (order.status === 'completed') {
+    } else if (order.status === 'completed' || order.status === 'cancelled') {
       trackerText.textContent = `✅ Order #${order.id.slice(-4)} Served. Enjoy!`;
+      setTimeout(() => {
+        const activeId = localStorage.getItem('desi_to_dragon_active_order_id');
+        if (activeId === order.id) {
+          localStorage.removeItem('desi_to_dragon_active_order_id');
+          trackerBar.classList.add('hidden');
+        }
+      }, 10000);
     }
   }
 }
@@ -628,6 +655,23 @@ function setupEventListeners() {
       }
     });
   }
+
+  // My Orders Modal Toggle
+  if (myOrdersBtn && myOrdersModal) {
+    myOrdersBtn.addEventListener('click', () => {
+      renderMyOrdersHistory();
+      myOrdersModal.classList.remove('hidden');
+    });
+    if (closeMyOrdersBtn) {
+      closeMyOrdersBtn.addEventListener('click', () => myOrdersModal.classList.add('hidden'));
+    }
+    if (closeMyOrdersBtnBottom) {
+      closeMyOrdersBtnBottom.addEventListener('click', () => myOrdersModal.classList.add('hidden'));
+    }
+    myOrdersModal.addEventListener('click', (e) => {
+      if (e.target === myOrdersModal) myOrdersModal.classList.add('hidden');
+    });
+  }
 }
 
 // Handle Order Submission
@@ -701,6 +745,16 @@ function handleCheckoutSubmit(e) {
     console.log('Cloud fetch exception:', err);
   }
 
+  // Save order to customer history
+  let myHistory = [];
+  try {
+    myHistory = JSON.parse(localStorage.getItem('desi_to_dragon_customer_orders_history') || '[]');
+  } catch (e) { myHistory = []; }
+  myHistory.unshift(order);
+  localStorage.setItem('desi_to_dragon_customer_orders_history', JSON.stringify(myHistory));
+
+  updateMyOrdersButtonVisibility();
+
   // Clear Cart & Close Drawer
   potluckState.cart = [];
   saveCartToStorage();
@@ -711,15 +765,7 @@ function handleCheckoutSubmit(e) {
     confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
   }
 
-  // Show Order Placed Modal
-  receiptOrderId.textContent = '#' + order.id.slice(-6);
-  receiptCustomerName.textContent = order.customerName;
-  const receiptTableNoEl = document.getElementById('receiptTableNo');
-  if (receiptTableNoEl) receiptTableNoEl.textContent = order.tableNumber || 'Table 1';
-  receiptTotalAmount.textContent = '₹' + order.totalAmount;
-  orderPlacedModal.classList.remove('hidden');
-
-  showToast(`🎉 Order Placed successfully! Sent to owner dashboard.`);
+  showToast(`🎉 Order #${order.id.slice(-6)} placed! Track details in 'My Orders'.`);
   renderApp();
 }
 
@@ -1056,3 +1102,77 @@ window.resetFilters = function() {
   document.querySelectorAll('.tag-chip').forEach(c => c.classList.toggle('active', c.dataset.diet === 'all'));
   renderApp();
 };
+
+function updateMyOrdersButtonVisibility() {
+  if (!myOrdersBtn) return;
+  let myHistory = [];
+  try {
+    myHistory = JSON.parse(localStorage.getItem('desi_to_dragon_customer_orders_history') || '[]');
+  } catch (e) { myHistory = []; }
+  
+  if (myHistory.length > 0) {
+    myOrdersBtn.classList.remove('hidden');
+  } else {
+    myOrdersBtn.classList.add('hidden');
+  }
+}
+
+function renderMyOrdersHistory() {
+  if (!myOrdersHistoryContainer) return;
+  
+  let myHistory = [];
+  try {
+    myHistory = JSON.parse(localStorage.getItem('desi_to_dragon_customer_orders_history') || '[]');
+  } catch (e) { myHistory = []; }
+  
+  let masterOrders = [];
+  try {
+    masterOrders = JSON.parse(localStorage.getItem('desi_to_dragon_orders_2026') || '[]');
+  } catch (e) { masterOrders = []; }
+
+  if (myHistory.length === 0) {
+    myOrdersHistoryContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;font-size:0.9rem;">You haven\'t placed any orders yet.</p>';
+    return;
+  }
+
+  myOrdersHistoryContainer.innerHTML = myHistory.map(histOrder => {
+    // Sync status with master list
+    const master = masterOrders.find(o => o.id === histOrder.id);
+    const status = master ? master.status : histOrder.status;
+
+    let statusLabel = '⏳ Cooking in Progress';
+    let statusClass = 'status-badge-pending';
+    if (status === 'preparing') { statusLabel = '🔥 Wok Sizzling'; statusClass = 'status-badge-pending'; }
+    if (status === 'ready') { statusLabel = '🛎️ READY TO SERVE'; statusClass = 'status-badge-ready'; }
+    if (status === 'completed') { statusLabel = '✅ Served / Completed'; statusClass = 'status-badge-completed'; }
+    if (status === 'cancelled') { statusLabel = '❌ Cancelled'; statusClass = 'status-badge-cancelled'; }
+
+    const timeStr = new Date(histOrder.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    return `
+      <div class="order-receipt-box" style="margin: 0; padding: 14px; border: 1px solid var(--border-subtle); background:rgba(38,29,21,0.65); text-align:left;">
+        <div class="receipt-line" style="display:flex; justify-content:space-between; align-items:center; font-weight:800; font-size:0.95rem; margin-bottom: 4px;">
+          <span>Order #${histOrder.id.slice(-6)}</span>
+          <span class="${statusClass}" style="padding: 2px 8px; border-radius: 4px; font-size: 0.78rem;">${statusLabel}</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 10px;">
+          ${histOrder.orderType === 'preorder' ? `📅 Pre-Order Scheduled: ${new Date(histOrder.preOrderDateTime).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}` : '🍽️ Dine-In Order'} (${timeStr})
+        </div>
+        
+        <div style="border-top:1px dashed var(--border-subtle); margin-top:8px; padding-top:8px; font-size:0.88rem; display:flex; flex-direction:column; gap:4px;">
+          ${histOrder.items.map(item => `
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#ffffff;">${item.qty}x ${escapeHTML(item.name)}</span>
+              <span style="color:var(--primary-gold);">₹${item.price * item.qty}</span>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div style="border-top:1px dashed var(--border-subtle); margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:800; color:var(--primary-gold); font-size: 1.05rem;">
+          <span>Total amount:</span>
+          <span>₹${histOrder.totalAmount}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}

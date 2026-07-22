@@ -36,6 +36,10 @@
         </div>
       </div>
       <div class="header-actions">
+        <button id="myOrdersBtn" class="btn btn-secondary hidden" title="View Your Placed Orders">
+          <i data-lucide="receipt"></i>
+          <span>My Orders</span>
+        </button>
         <button id="openCartBtn" class="btn btn-primary cart-nav-btn">
           <i data-lucide="shopping-bag"></i>
           <span>View Cart</span>
@@ -372,6 +376,26 @@
       <div class="modal-actions" style="margin-top:16px;">
         <button id="closeOrderPlacedBtn" class="btn btn-primary" style="width:100%;">
           <span>Done / Back to Menu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ORDERS LIST MODAL -->
+  <div id="myOrdersModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card success-modal-card" style="max-width: 500px !important;">
+      <div class="modal-header" style="padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+        <h2 style="font-size:1.3rem;"><i data-lucide="receipt" style="color:var(--primary-gold);vertical-align:middle;margin-right:8px;"></i> Placed Orders History</h2>
+        <button id="closeMyOrdersBtn" class="close-btn" aria-label="Close My Orders">&times;</button>
+      </div>
+      
+      <div id="myOrdersHistoryContainer" class="orders-history-container" style="max-height: 60vh; overflow-y: auto; padding: 16px 0; -webkit-overflow-scrolling: touch; display:flex; flex-direction:column; gap:16px;">
+        <!-- Placed orders rendered via JS -->
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 8px;">
+        <button id="closeMyOrdersBtnBottom" class="btn btn-primary" style="width:100%;">
+          <span>Done / Return Menu</span>
         </button>
       </div>
     </div>
