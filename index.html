@@ -41,18 +41,6 @@
           <span>View Cart</span>
           <span id="cartCountBadge" class="cart-count-badge">0</span>
         </button>
-        <button id="tableQrBtn" class="btn btn-secondary" title="View Table Standee QR Code">
-          <i data-lucide="qr-code"></i>
-          <span>QR Standee</span>
-        </button>
-        <button id="shareBtn" class="btn btn-secondary" title="Share Menu">
-          <i data-lucide="share-2"></i>
-          <span>Share</span>
-        </button>
-        <a href="admin.html" class="btn btn-secondary" title="Owner Admin Portal">
-          <i data-lucide="shield-check"></i>
-          <span>Owner Admin</span>
-        </a>
       </div>
     </header>
 
@@ -370,51 +358,6 @@
     </div>
   </div>
 
-  <!-- TABLE QR STANDEE MODAL -->
-  <div id="tableQrModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal-card qr-standee-card">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="modal-brand-logo">
-          <div>
-            <h2>Customer Menu QR Standee</h2>
-            <p class="modal-sub">Display on tables for customers to scan & order</p>
-          </div>
-        </div>
-        <button id="closeQrModalBtn" class="close-btn"><i data-lucide="x"></i></button>
-      </div>
-
-      <div class="qr-standee-body">
-        <div class="qr-poster-preview">
-          <img src="assets/desi_to_dragon_logo.jpg" alt="Logo" class="qr-poster-logo">
-          <h3 class="qr-poster-brand">DESI TO DRAGON</h3>
-          <p class="qr-poster-tagline">CRAFTED CUISINE</p>
-          
-          <div class="qr-code-frame">
-            <img src="assets/menu_qr_code.png" alt="Scan for Menu QR Code" class="qr-image">
-          </div>
-
-          <div class="qr-instruction">
-            <i data-lucide="camera" style="color:var(--primary-flame);"></i>
-            <span>SCAN WITH CAMERA TO VIEW MENU & ORDER</span>
-          </div>
-
-          <p class="qr-url-text">https://Nesaragowda13.github.io/desi-to-dragon-menu/</p>
-        </div>
-
-        <div class="qr-modal-actions">
-          <a href="assets/menu_qr_code.png" download="Desi_To_Dragon_Menu_QR.png" class="btn btn-secondary">
-            <i data-lucide="download"></i>
-            <span>Download PNG</span>
-          </a>
-          <button id="printQrPosterBtn" class="btn btn-primary">
-            <i data-lucide="printer"></i>
-            <span>Print Standee</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="toast hidden">

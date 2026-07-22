@@ -568,11 +568,13 @@ function setupEventListeners() {
     printQrPosterBtn.addEventListener('click', () => window.print());
   }
 
-  shareBtn.addEventListener('click', () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Menu link copied!'));
-    }
-  });
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Menu link copied!'));
+      }
+    });
+  }
 }
 
 // Handle Order Submission
