@@ -146,6 +146,7 @@ const adminState = {
 
 // Broadcast Channel for Inter-Tab Sync
 const syncChannel = window.BroadcastChannel ? new BroadcastChannel('desi_to_dragon_channel') : null;
+const pageLoadTime = Date.now();
 
 // DOM Elements
 const liveOrdersGrid = document.getElementById('liveOrdersGrid');
@@ -257,11 +258,7 @@ function setupBroadcastListener() {
   if (syncChannel) {
     syncChannel.onmessage = (event) => {
       if (event.data.type === 'NEW_ORDER') {
-        playOrderChimeSound();
-        showToast(`🔔 New Order from ${event.data.order.customerName} (${event.data.order.tableNumber || 'Table 1'})!`);
-        triggerSystemNotification("Desi to Dragon Menu", `🔔 New Order from ${event.data.order.customerName} (${event.data.order.tableNumber || 'Table 1'})`);
-        loadDataFromStorage();
-        renderAdminUI();
+        processNewOrder(event.data.order);
       } else if (event.data.type === 'ORDERS_UPDATED' || event.data.type === 'DISHES_UPDATED') {
         loadDataFromStorage();
         renderAdminUI();
@@ -282,7 +279,7 @@ function setupBroadcastListener() {
         if (payload && payload.message) {
           const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
           if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
-            processNewCloudOrder(orderMsg.order);
+            processNewOrder(orderMsg.order);
           }
         }
       } catch (err) {
@@ -308,8 +305,6 @@ function fetchCloudOrdersHistory() {
     .then(res => res.text())
     .then(text => {
       const lines = text.trim().split('\n');
-      let updated = false;
-      const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
       lines.forEach(line => {
         if (!line) return;
         try {
@@ -317,41 +312,35 @@ function fetchCloudOrdersHistory() {
           if (payload && payload.message) {
             const orderMsg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
             if (orderMsg && orderMsg.type === 'NEW_ORDER' && orderMsg.order) {
-              const o = orderMsg.order;
-              if (currentCleared.includes(o.id)) return;
-              if (!adminState.orders.some(existing => existing.id === o.id)) {
-                adminState.orders.unshift(o);
-                updated = true;
-              }
+              processNewOrder(orderMsg.order);
             }
           }
         } catch (e) {}
       });
-      if (updated) {
-        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
-        playOrderChimeSound();
-        const latest = adminState.orders[0];
-        if (latest) {
-          triggerSystemNotification("Desi to Dragon Menu", `🔔 New Order from ${latest.customerName} (${latest.tableNumber || 'Table 1'})`);
-        }
-        renderAdminUI();
-      }
     })
     .catch(e => console.log('Error polling cloud orders:', e));
 }
 
-function processNewCloudOrder(newOrder) {
+function processNewOrder(newOrder) {
   const currentCleared = JSON.parse(localStorage.getItem('desi_to_dragon_cleared_orders_2026') || '[]');
-  if (currentCleared.includes(newOrder.id)) return;
+  if (currentCleared.includes(newOrder.id)) return false;
 
   if (!adminState.orders.some(o => o.id === newOrder.id)) {
     adminState.orders.unshift(newOrder);
     localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
-    playOrderChimeSound();
-    showToast(`🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})!`);
-    triggerSystemNotification("Desi to Dragon Menu", `🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})`);
+
+    // Only play sound & notifications if the order was placed after page load (or within the last 30 seconds)
+    const isRecent = newOrder.timestamp && (newOrder.timestamp > pageLoadTime - 30000);
+    if (isRecent) {
+      playOrderChimeSound();
+      showToast(`🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})!`);
+      triggerSystemNotification("Desi to Dragon Menu", `🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})`);
+    }
+
     renderAdminUI();
+    return true;
   }
+  return false;
 }
 
 // Play Order Alert Sound (Web Audio Synthesizer)
