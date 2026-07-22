@@ -1672,6 +1672,36 @@ body {
     flex-direction: column;
     gap: 8px;
   }
+
+  /* CUSTOM MOBILE COMORT & SMOOTH OVERRIDES */
+  .menu-mode-tabs {
+    gap: 6px;
+    padding: 4px;
+  }
+
+  .mode-tab-btn {
+    padding: 10px 8px;
+    font-size: 0.95rem;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .cart-drawer-card {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+    max-height: 94vh !important;
+    display: flex;
+    flex-direction: column;
+    width: 100% !important;
+  }
+
+  .btn, .tab-btn, .tag-chip, .mode-tab-btn, .card-step-btn, .stepper-btn {
+    min-height: 40px;
+    cursor: pointer;
+  }
 }
 
 /* Extra Small Phones (under 480px) */
