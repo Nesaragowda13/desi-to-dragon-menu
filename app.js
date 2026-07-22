@@ -799,7 +799,7 @@ function handleCheckoutSubmit(e) {
 
   // 🌐 Send Order to Cloud Realtime Endpoint (Reaches Owner Dashboard on ANY device/network)
   try {
-    fetch('https://ntfy.sh/desidragon_orders_v2', {
+    fetch('https://ntfy.envs.net/desidragon_orders_v2', {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'NEW_ORDER', order: order })
