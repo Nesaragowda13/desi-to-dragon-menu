@@ -230,12 +230,18 @@ function saveOrders() {
   localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(adminState.orders));
   if (syncChannel) syncChannel.postMessage({ type: 'ORDERS_UPDATED', orders: adminState.orders });
 
+  // Create a compact map of all orders to their statuses
+  const statusMap = {};
+  adminState.orders.forEach(o => {
+    statusMap[o.id] = o.status;
+  });
+
   // 🌐 Broadcast Order Status Changes to Cloud Stream for Customer Smartphones
   try {
     fetch('https://ntfy.sh/desi_to_dragon_status_2026', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'ORDERS_UPDATED', orders: adminState.orders })
+      body: JSON.stringify({ type: 'ORDERS_STATUS_MAP', statuses: statusMap })
     }).catch(e => console.log('Status cloud error:', e));
   } catch (e) { console.log('Status sync exception:', e); }
 }

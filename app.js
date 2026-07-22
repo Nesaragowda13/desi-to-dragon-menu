@@ -272,18 +272,67 @@ function saveCartToStorage() {
   localStorage.setItem('desi_to_dragon_customer_cart', JSON.stringify(potluckState.cart));
 }
 
+function processStatusPayload(msg) {
+  if (!msg) return;
+
+  if (msg.type === 'ORDERS_UPDATED' && Array.isArray(msg.orders)) {
+    localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(msg.orders));
+    checkActiveOrderStatus(msg.orders);
+    if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
+      renderMyOrdersHistory();
+    }
+  } else if (msg.type === 'ORDERS_STATUS_MAP' && msg.statuses) {
+    let localOrders = [];
+    try {
+      localOrders = JSON.parse(localStorage.getItem('desi_to_dragon_orders_2026') || '[]');
+    } catch (e) { localOrders = []; }
+
+    let updated = false;
+    localOrders.forEach(o => {
+      if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
+        o.status = msg.statuses[o.id];
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(localOrders));
+    }
+
+    let myHistory = [];
+    try {
+      myHistory = JSON.parse(localStorage.getItem('desi_to_dragon_customer_orders_history') || '[]');
+    } catch (e) { myHistory = []; }
+
+    let historyUpdated = false;
+    myHistory.forEach(o => {
+      if (msg.statuses[o.id] !== undefined && o.status !== msg.statuses[o.id]) {
+        o.status = msg.statuses[o.id];
+        historyUpdated = true;
+      }
+    });
+
+    if (historyUpdated) {
+      localStorage.setItem('desi_to_dragon_customer_orders_history', JSON.stringify(myHistory));
+    }
+
+    if (updated || historyUpdated) {
+      checkActiveOrderStatus(localOrders);
+      if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
+        renderMyOrdersHistory();
+      }
+    }
+  }
+}
+
 function setupBroadcastListener() {
   if (syncChannel) {
     syncChannel.onmessage = (e) => {
       if (e.data.type === 'DISHES_UPDATED') {
         potluckState.dishes = e.data.dishes;
         renderApp();
-      } else if (e.data.type === 'ORDERS_UPDATED') {
-        localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(e.data.orders));
-        checkActiveOrderStatus(e.data.orders);
-        if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
-          renderMyOrdersHistory();
-        }
+      } else if (e.data.type === 'ORDERS_UPDATED' || e.data.type === 'ORDERS_STATUS_MAP') {
+        processStatusPayload(e.data);
       }
     };
   }
@@ -294,7 +343,7 @@ function setupBroadcastListener() {
   setInterval(fetchCloudStock, 8000);
   setInterval(fetchCloudOrderStatus, 5000);
 
-  // 🌐 Listen via Cloud Realtime EventSource Stream for Stock & Status Locks
+  // 🔔 Listen via Cloud Realtime EventSource Stream for Stock & Status Locks
   try {
     const stockEventSource = new EventSource('https://ntfy.sh/desi_to_dragon_stock_2026/json');
     stockEventSource.onmessage = (event) => {
@@ -327,13 +376,7 @@ function setupBroadcastListener() {
         const payload = JSON.parse(event.data);
         if (payload && payload.message) {
           const msg = typeof payload.message === 'string' ? JSON.parse(payload.message) : payload.message;
-          if (msg && msg.type === 'ORDERS_UPDATED' && msg.orders) {
-            localStorage.setItem('desi_to_dragon_orders_2026', JSON.stringify(msg.orders));
-            checkActiveOrderStatus(msg.orders);
-            if (myOrdersModal && !myOrdersModal.classList.contains('hidden')) {
-              renderMyOrdersHistory();
-            }
-          }
+          processStatusPayload(msg);
         }
       } catch (err) {}
     };
