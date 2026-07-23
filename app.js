@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DESI TO DRAGON - CUSTOMER ORDERING PORTAL JS
  */
 
@@ -9,45 +9,21 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
-  {
-    id: "dish-1",
-    name: "Golden Dragon Dumplings",
-    price: 18,
-    category: "Starters",
-    dietary: "veg",
-    fusionType: "fusion",
-    servings: "6 pieces",
-    spiceLevel: "1",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Steamed dumplings filled with savory vegetables."
-  },
-  {
-    id: "dish-2",
-    name: "Spicy Schezwan Noodles",
-    price: 24,
-    category: "Mains",
-    dietary: "veg",
-    fusionType: "desi",
-    servings: "2 people",
-    spiceLevel: "3",
-    isGlutenFree: "no",
-    isSoldOut: false,
-    description: "Wok-tossed noodles in a fiery homemade Schezwan sauce."
-  },
-  {
-    id: "dish-3",
-    name: "Mango Lassi Delight",
-    price: 12,
-    category: "Desserts",
-    dietary: "veg",
-    fusionType: "fusion",
-    servings: "1 glass",
-    spiceLevel: "0",
-    isGlutenFree: "yes",
-    isSoldOut: false,
-    description: "Sweet and creamy mango yogurt drink."
-  }
+  { id: "dish-1", name: "Dumplings (Steam) - Veg", price: 79, category: "Starters", dietary: "veg", description: "Dumplings are soft dough pockets filled with vegetables, meat, or other savory ingredients, then steamed served with a flavorful dipping sauce.", isSoldOut: false },
+  { id: "dish-2", name: "Dumplings (Steam) - Chicken", price: 99, category: "Starters", dietary: "non-veg", description: "Dumplings are soft dough pockets filled with vegetables, meat, or other savory ingredients, then steamed served with a flavorful dipping sauce.", isSoldOut: false },
+  { id: "dish-3", name: "Dumplings (Fried) - Veg", price: 79, category: "Starters", dietary: "veg", description: "Dumplings are soft dough pockets filled with vegetables, meat, or other savory ingredients fried and served with a flavorful dipping sauce.", isSoldOut: false },
+  { id: "dish-4", name: "Dumplings (Fried) - Chicken", price: 99, category: "Starters", dietary: "non-veg", description: "Dumplings are soft dough pockets filled with vegetables, meat, or other savory ingredients fried and served with a flavorful dipping sauce.", isSoldOut: false },
+  { id: "dish-5", name: "ChowMein - Veg", price: 69, category: "Mains", dietary: "veg", description: "Chow Mein is a Chinese stir-fried noodle dish made with vegetables, Egg and often chicken.", isSoldOut: false },
+  { id: "dish-6", name: "ChowMein - Egg", price: 79, category: "Mains", dietary: "non-veg", description: "Chow Mein is a Chinese stir-fried noodle dish made with vegetables, Egg and often chicken.", isSoldOut: false },
+  { id: "dish-7", name: "ChowMein - Chicken", price: 99, category: "Mains", dietary: "non-veg", description: "Chow Mein is a Chinese stir-fried noodle dish made with vegetables, Egg and often chicken.", isSoldOut: false },
+  { id: "dish-8", name: "Chicken Biryani", price: 110, category: "Mains", dietary: "non-veg", description: "Chicken Biryani is a flavorful and aromatic rice dish made with tender chicken, fragrant basmati rice, and a blend of traditional spices, layered and slow-cooked to create a rich, savory meal known for its delicious taste and irresistible aroma.", isSoldOut: false },
+  { id: "dish-9", name: "Chicken Kheema Balls", price: 99, category: "Starters", dietary: "non-veg", description: "Chicken Kheema Balls are juicy, bite-sized meatballs made from finely minced chicken blended with aromatic spices, herbs, and seasonings, then shaped into balls and cooked until tender and flavorful.", isSoldOut: false },
+  { id: "dish-10", name: "Veg Fried Rice", price: 69, category: "Mains", dietary: "veg", description: "Veg Fried Rice is a flavorful and colorful rice dish made with stir-fried vegetables, aromatic seasonings, and perfectly cooked rice, offering a delicious balance of taste, texture, and freshness in every bite.", isSoldOut: false },
+  { id: "dish-11", name: "Chilli Chicken", price: 99, category: "Starters", dietary: "non-veg", description: "Chilli Chicken is a crispy and juicy chicken dish tossed in a spicy, tangy sauce. A flavorful Indo-Chinese favorite made with chillies, onions, and capsicum.", isSoldOut: false },
+  { id: "dish-12", name: "Baby Corn Manchurian", price: 99, category: "Starters", dietary: "veg", description: "Baby Corn Manchurian is a crispy and delicious Indo-Chinese dish made with golden-fried baby corn.", isSoldOut: false },
+  { id: "dish-13", name: "Milk Pudding", price: 79, category: "Desserts", dietary: "veg", description: "Milk Pudding - A smooth, creamy, and lightly sweet dessert made with milk, sugar, and a setting agent, offering a rich and refreshing melt-in-the-mouth texture.", isSoldOut: false },
+  { id: "dish-14", name: "Fruit Custard", price: 69, category: "Desserts", dietary: "veg", description: "A creamy and refreshing dessert made with smooth custard and a mix of fresh seasonal fruits, offering a perfect balance of sweetness and fruity flavors.", isSoldOut: false },
+  { id: "dish-15", name: "Blue Lagoon Mocktail", price: 69, category: "Drinks", dietary: "veg", description: "Blue Lagoon Mocktail: A refreshing and vibrant blue-colored drink made with blue curaçao syrup, lemonade, and ice, offering a sweet citrus flavor and a tropical taste perfect for hot days.", isSoldOut: false }
 ];
 
 // Customer App State
@@ -128,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadDishesFromStorage() {
-  const saved = localStorage.getItem('desi_to_dragon_dishes_v5');
+  const saved = localStorage.getItem('desi_to_dragon_dishes_v6');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -146,7 +122,7 @@ function loadDishesFromStorage() {
   } else {
     potluckState.dishes = INITIAL_DISHES;
   }
-  localStorage.setItem('desi_to_dragon_dishes_v5', JSON.stringify(potluckState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v6', JSON.stringify(potluckState.dishes));
 }
 
 function updateCustomerDishes(newDishes) {
@@ -160,7 +136,7 @@ function updateCustomerDishes(newDishes) {
     }
   });
   
-  localStorage.setItem('desi_to_dragon_dishes_v5', JSON.stringify(potluckState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v6', JSON.stringify(potluckState.dishes));
   renderApp();
 }
 
@@ -239,23 +215,23 @@ function setupBroadcastListener() {
     };
   }
 
-  // 🌐 Poll Cloud Stock & Status Updates
+  // ðŸŒ Poll Cloud Stock & Status Updates
   fetchCloudStock();
   fetchCloudOrderStatus();
   setInterval(fetchCloudStock, 8000);
   setInterval(fetchCloudOrderStatus, 5000);
 
-  // 🔔 Listen via Supabase Realtime for Stock & Status Locks
+  // ðŸ”” Listen via Supabase Realtime for Stock & Status Locks
   // Removing ntfy for stock and status updates and moving to Supabase where needed later.
   // We'll leave local Fallback channel.
-  // 🌐 Listen to Order Status Cloud Stream via Supabase Realtime
+  // ðŸŒ Listen to Order Status Cloud Stream via Supabase Realtime
   try {
     supabaseClient.channel('public:orders')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
         const activeOrderId = localStorage.getItem('desi_to_dragon_active_order_id');
         if (activeOrderId && payload.new.id === activeOrderId) {
           if (payload.new.status === 'ready') {
-            showToast('✅ Your order is ready!', 8000);
+            showToast('âœ… Your order is ready!', 8000);
             playReadyChimeSound();
             localStorage.removeItem('desi_to_dragon_active_order_id');
           }
@@ -267,7 +243,7 @@ function setupBroadcastListener() {
   }
 
   window.addEventListener('storage', (e) => {
-    if (e.key === 'desi_to_dragon_dishes_v5') {
+    if (e.key === 'desi_to_dragon_dishes_v6') {
       loadDishesFromStorage();
       renderApp();
     }
@@ -299,11 +275,11 @@ function checkActiveOrderStatus(orders) {
     trackerBar.classList.remove('hidden');
 
     if (order.status === 'pending') {
-      trackerText.textContent = `⏳ Order #${order.id.slice(-4)} sent to kitchen...`;
+      trackerText.textContent = `â³ Order #${order.id.slice(-4)} sent to kitchen...`;
     } else if (order.status === 'preparing') {
-      trackerText.textContent = `🔥 Order #${order.id.slice(-4)} cooking in wok!`;
+      trackerText.textContent = `ðŸ”¥ Order #${order.id.slice(-4)} cooking in wok!`;
     } else if (order.status === 'ready') {
-      trackerText.textContent = `🛎️ Order #${order.id.slice(-4)} is READY TO SERVE!`;
+      trackerText.textContent = `ðŸ›Žï¸ Order #${order.id.slice(-4)} is READY TO SERVE!`;
 
       // Trigger Alert if not already notified
       if (!notifiedReadyOrders.has(order.id)) {
@@ -311,7 +287,7 @@ function checkActiveOrderStatus(orders) {
         triggerOrderReadyNotification(order);
       }
     } else if (order.status === 'completed' || order.status === 'cancelled') {
-      trackerText.textContent = `✅ Order #${order.id.slice(-4)} Served. Enjoy!`;
+      trackerText.textContent = `âœ… Order #${order.id.slice(-4)} Served. Enjoy!`;
       setTimeout(() => {
         const activeId = localStorage.getItem('desi_to_dragon_active_order_id');
         if (activeId === order.id) {
@@ -368,8 +344,8 @@ function triggerOrderReadyNotification(order) {
     }
   }
 
-  showToast(`🎉 YOUR ORDER IS READY TO SERVE!`);
-  triggerSystemNotification("Desi to Dragon Menu", `🛎️ Your Order #${order.id.slice(-6)} is READY TO SERVE!`);
+  showToast(`ðŸŽ‰ YOUR ORDER IS READY TO SERVE!`);
+  triggerSystemNotification("Desi to Dragon Menu", `ðŸ›Žï¸ Your Order #${order.id.slice(-6)} is READY TO SERVE!`);
 }
 
 function setupEventListeners() {
@@ -429,7 +405,7 @@ function setupEventListeners() {
         syncPaymentUi();
       }
       renderApp();
-      showToast(mode === 'preorder' ? '📅 Switched to Pre-Order (UPI Online)' : '🍽️ Switched to Dine-In Menu (Cash Pay)');
+      showToast(mode === 'preorder' ? 'ðŸ“… Switched to Pre-Order (UPI Online)' : 'ðŸ½ï¸ Switched to Dine-In Menu (Cash Pay)');
     };
 
     modeDineInBtn.addEventListener('click', () => handleModeSwitch('dinein'));
@@ -482,7 +458,7 @@ function setupEventListeners() {
         paymentMethodSelect.value = 'upi';
         if (cashPayOption) cashPayOption.disabled = true;
         if (upiPayOption) upiPayOption.disabled = false;
-        showToast('ℹ️ Pre-Orders require mandatory online UPI payment advance.');
+        showToast('â„¹ï¸ Pre-Orders require mandatory online UPI payment advance.');
       } else {
         if (preOrderDateTimeInput) preOrderDateTimeInput.required = false;
         paymentMethodSelect.value = 'cash';
@@ -500,7 +476,7 @@ function setupEventListeners() {
   // Cart Drawer Events
   const openCart = () => {
     // Auto-detect if cart contains pre-order items
-    const hasPreOrderItems = potluckState.cart.some(item => item.category === 'Pre-Order Specials' || item.name.includes('📅'));
+    const hasPreOrderItems = potluckState.cart.some(item => item.category === 'Pre-Order Specials' || item.name.includes('ðŸ“…'));
     if (hasPreOrderItems && orderTypeSelect) {
       orderTypeSelect.value = 'preorder';
       if (preOrderTimeGroup) preOrderTimeGroup.classList.remove('hidden');
@@ -546,7 +522,7 @@ function setupEventListeners() {
   if (shareBtn) {
     shareBtn.addEventListener('click', () => {
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Menu link copied!'));
+        navigator.clipboard.writeText(window.location.href).then(() => showToast('ðŸ”— Menu link copied!'));
       }
     });
   }
@@ -624,7 +600,7 @@ function handleCheckoutSubmit(e) {
     syncChannel.postMessage({ type: 'NEW_ORDER', order: order });
   }
 
-  // 🌐 Send Order to Supabase SQL Database (Reaches Owner Dashboard instantly on ANY device)
+  // ðŸŒ Send Order to Supabase SQL Database (Reaches Owner Dashboard instantly on ANY device)
   try {
     const dbOrder = {
       id: order.id,
@@ -666,7 +642,7 @@ function handleCheckoutSubmit(e) {
     confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
   }
 
-  showToast(`🎉 Order #${order.id.slice(-6)} placed! Track details in 'My Orders'.`);
+  showToast(`ðŸŽ‰ Order #${order.id.slice(-6)} placed! Track details in 'My Orders'.`);
   renderApp();
 }
 
@@ -674,8 +650,8 @@ function handleCheckoutSubmit(e) {
 function renderCartDrawer() {
   const subtotal = potluckState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  cartSubtotalText.textContent = '₹' + subtotal;
-  cartGrandTotalText.textContent = '₹' + subtotal;
+  cartSubtotalText.textContent = 'â‚¹' + subtotal;
+  cartGrandTotalText.textContent = 'â‚¹' + subtotal;
 
   if (potluckState.cart.length === 0) {
     cartItemsList.innerHTML = `
@@ -692,7 +668,7 @@ function renderCartDrawer() {
     <div class="cart-item-row" data-id="${item.id}">
       <div class="cart-item-info">
         <span class="cart-item-title">${escapeHTML(item.name)}</span>
-        <span class="cart-item-price">₹${item.price} x ${item.qty} = ₹${item.price * item.qty}</span>
+        <span class="cart-item-price">â‚¹${item.price} x ${item.qty} = â‚¹${item.price * item.qty}</span>
       </div>
       <div class="cart-item-stepper">
         <button class="stepper-btn" data-action="minus">-</button>
@@ -838,31 +814,31 @@ function renderApp() {
 function createDishCardHTML(dish) {
   let dietBadgeHTML = '';
   if (dish.dietary === 'veg') {
-    dietBadgeHTML = `<span class="diet-badge badge-veg">🟢 Veg</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-veg">ðŸŸ¢ Veg</span>`;
   } else if (dish.dietary === 'vegan') {
-    dietBadgeHTML = `<span class="diet-badge badge-vegan">🌱 Vegan</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-vegan">ðŸŒ± Vegan</span>`;
   } else if (dish.dietary === 'non-veg') {
-    dietBadgeHTML = `<span class="diet-badge badge-nonveg">🔴 Non-Veg</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-nonveg">ðŸ”´ Non-Veg</span>`;
   }
 
   let fusionBadgeHTML = dish.fusionType === 'fusion' 
-    ? `<span class="diet-badge badge-fusion">🐉 Fusion</span>`
-    : `<span class="diet-badge badge-veg" style="color:var(--primary-gold);border-color:var(--primary-gold);">🇮🇳 Desi</span>`;
+    ? `<span class="diet-badge badge-fusion">ðŸ‰ Fusion</span>`
+    : `<span class="diet-badge badge-veg" style="color:var(--primary-gold);border-color:var(--primary-gold);">ðŸ‡®ðŸ‡³ Desi</span>`;
 
   let spiceText = '';
-  if (dish.spiceLevel === '1') spiceText = '🌶️ Medium';
-  if (dish.spiceLevel === '2') spiceText = '🌶️🌶️ Dragon Hot';
-  if (dish.spiceLevel === '3') spiceText = '🔥🔥🔥 Inferno';
+  if (dish.spiceLevel === '1') spiceText = 'ðŸŒ¶ï¸ Medium';
+  if (dish.spiceLevel === '2') spiceText = 'ðŸŒ¶ï¸ðŸŒ¶ï¸ Dragon Hot';
+  if (dish.spiceLevel === '3') spiceText = 'ðŸ”¥ðŸ”¥ðŸ”¥ Inferno';
 
   const cartItem = potluckState.cart.find(c => c.id === dish.id);
   const qtyInCart = cartItem ? cartItem.qty : 0;
 
   const isDragonSpecial = dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials';
-  const dragonDecor = isDragonSpecial ? '<span class="dragon-decor-badge">🐉</span>' : '';
+  const dragonDecor = isDragonSpecial ? '<span class="dragon-decor-badge">ðŸ‰</span>' : '';
 
   return `
     <article class="dish-card ${dish.isSoldOut ? 'sold-out-card' : ''}" data-id="${dish.id}">
-      ${dish.isSoldOut ? `<div class="sold-out-overlay"><span>⛔ SOLD OUT / FINISHED</span></div>` : ''}
+      ${dish.isSoldOut ? `<div class="sold-out-overlay"><span>â›” SOLD OUT / FINISHED</span></div>` : ''}
 
       <div class="dish-top">
         <div class="dish-header">
@@ -875,7 +851,7 @@ function createDishCardHTML(dish) {
         ${dish.description ? `<p class="dish-desc">${escapeHTML(dish.description)}</p>` : ''}
         
         <div class="dish-details-row">
-          <span class="detail-tag" style="color:var(--primary-gold);font-weight:700;font-size:1rem;">₹${dish.price}</span>
+          <span class="detail-tag" style="color:var(--primary-gold);font-weight:700;font-size:1rem;">â‚¹${dish.price}</span>
           <span class="detail-tag"><i data-lucide="users" style="width:14px;height:14px;"></i> ${escapeHTML(dish.servings || '1 portion')}</span>
           ${spiceText ? `<span class="detail-tag" style="color:var(--primary-flame);font-weight:700;">${spiceText}</span>` : ''}
         </div>
@@ -883,7 +859,7 @@ function createDishCardHTML(dish) {
 
       <div class="dish-footer">
         <div class="price-block">
-          <span class="price-val">₹${dish.price}</span>
+          <span class="price-val">â‚¹${dish.price}</span>
         </div>
 
         <div class="card-actions">
@@ -918,7 +894,7 @@ function attachCardEvents() {
       addBtn.addEventListener('click', () => {
         potluckState.cart.push({ id: dish.id, name: dish.name, price: dish.price, qty: 1 });
         saveCartToStorage();
-        showToast(`🛒 Added "${dish.name}" to cart!`);
+        showToast(`ðŸ›’ Added "${dish.name}" to cart!`);
         renderApp();
       });
     }
@@ -959,7 +935,7 @@ function updateCartBadges() {
   if (floatingCartBtn) {
     if (totalCount > 0) {
       floatingCartCount.textContent = totalCount;
-      floatingCartTotal.textContent = '₹' + totalAmount;
+      floatingCartTotal.textContent = 'â‚¹' + totalAmount;
       floatingCartBtn.classList.remove('hidden');
     } else {
       floatingCartBtn.classList.add('hidden');
@@ -1017,12 +993,12 @@ function renderMyOrdersHistory() {
     const master = masterOrders.find(o => o.id === histOrder.id);
     const status = master ? master.status : histOrder.status;
 
-    let statusLabel = '⏳ Cooking in Progress';
+    let statusLabel = 'â³ Cooking in Progress';
     let statusClass = 'status-badge-pending';
-    if (status === 'preparing') { statusLabel = '🔥 Wok Sizzling'; statusClass = 'status-badge-pending'; }
-    if (status === 'ready') { statusLabel = '🛎️ READY TO SERVE'; statusClass = 'status-badge-ready'; }
-    if (status === 'completed') { statusLabel = '✅ Served / Completed'; statusClass = 'status-badge-completed'; }
-    if (status === 'cancelled') { statusLabel = '❌ Cancelled'; statusClass = 'status-badge-cancelled'; }
+    if (status === 'preparing') { statusLabel = 'ðŸ”¥ Wok Sizzling'; statusClass = 'status-badge-pending'; }
+    if (status === 'ready') { statusLabel = 'ðŸ›Žï¸ READY TO SERVE'; statusClass = 'status-badge-ready'; }
+    if (status === 'completed') { statusLabel = 'âœ… Served / Completed'; statusClass = 'status-badge-completed'; }
+    if (status === 'cancelled') { statusLabel = 'âŒ Cancelled'; statusClass = 'status-badge-cancelled'; }
 
     const timeStr = new Date(histOrder.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -1033,21 +1009,21 @@ function renderMyOrdersHistory() {
           <span class="${statusClass}" style="padding: 2px 8px; border-radius: 4px; font-size: 0.78rem;">${statusLabel}</span>
         </div>
         <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom: 10px;">
-          ${histOrder.orderType === 'preorder' ? `📅 Pre-Order Scheduled: ${new Date(histOrder.preOrderDateTime).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}` : '🍽️ Dine-In Order'} (${timeStr})
+          ${histOrder.orderType === 'preorder' ? `ðŸ“… Pre-Order Scheduled: ${new Date(histOrder.preOrderDateTime).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}` : 'ðŸ½ï¸ Dine-In Order'} (${timeStr})
         </div>
         
         <div style="border-top:1px dashed var(--border-subtle); margin-top:8px; padding-top:8px; font-size:0.88rem; display:flex; flex-direction:column; gap:4px;">
           ${histOrder.items.map(item => `
             <div style="display:flex; justify-content:space-between;">
               <span style="color:#ffffff;">${item.qty}x ${escapeHTML(item.name)}</span>
-              <span style="color:var(--primary-gold);">₹${item.price * item.qty}</span>
+              <span style="color:var(--primary-gold);">â‚¹${item.price * item.qty}</span>
             </div>
           `).join('')}
         </div>
         
         <div style="border-top:1px dashed var(--border-subtle); margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:800; color:var(--primary-gold); font-size: 1.05rem;">
           <span>Total amount:</span>
-          <span>₹${histOrder.totalAmount}</span>
+          <span>â‚¹${histOrder.totalAmount}</span>
         </div>
       </div>
     `;

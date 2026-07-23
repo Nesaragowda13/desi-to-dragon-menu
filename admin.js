@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DESI TO DRAGON - OWNER ADMIN DASHBOARD JS
  */
 
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadDataFromStorage() {
   // Load Dishes
-  const savedDishes = localStorage.getItem('desi_to_dragon_dishes_v5');
+  const savedDishes = localStorage.getItem('desi_to_dragon_dishes_v6');
   if (savedDishes) {
     try { 
       adminState.dishes = JSON.parse(savedDishes); 
@@ -145,10 +145,10 @@ function loadDataFromStorage() {
 }
 
 function saveDishes() {
-  localStorage.setItem('desi_to_dragon_dishes_v5', JSON.stringify(adminState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v6', JSON.stringify(adminState.dishes));
   if (syncChannel) syncChannel.postMessage({ type: 'DISHES_UPDATED', dishes: adminState.dishes });
 
-  // 🌐 Broadcast Dish & Stock Changes to Cloud Stream
+  // ðŸŒ Broadcast Dish & Stock Changes to Cloud Stream
   try {
     fetch('https://ntfy.sh/desi_to_dragon_stock_2026', {
       method: 'POST',
@@ -173,7 +173,7 @@ function updateCloudOrderStatusMap(orderId, newStatus) {
   saveOrders();
   renderAdminUI();
 
-  // 🌐 Send Status Update to Supabase Database
+  // ðŸŒ Send Status Update to Supabase Database
   try {
     supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
       if (error) console.error('Supabase update status error:', error);
@@ -239,7 +239,7 @@ async function fetchInitialSupabaseOrders() {
         
         if (hasNewOrders && !isInitialLoad) {
           playNotificationSound();
-          triggerSystemNotification("Desi to Dragon", "🛎️ NEW ORDER RECEIVED!");
+          triggerSystemNotification("Desi to Dragon", "ðŸ›Žï¸ NEW ORDER RECEIVED!");
         }
       }
       isInitialLoad = false;
@@ -307,8 +307,8 @@ function processNewOrder(newOrder) {
     const isRecent = newOrder.timestamp && (newOrder.timestamp > pageLoadTime - 30000);
     if (isRecent) {
       playOrderChimeSound();
-      showToast(`🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})!`);
-      triggerSystemNotification("Desi to Dragon Menu", `🔔 New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})`);
+      showToast(`ðŸ”” New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})!`);
+      triggerSystemNotification("Desi to Dragon Menu", `ðŸ”” New Order from ${newOrder.customerName} (${newOrder.tableNumber || 'Table 1'})`);
     }
 
     renderAdminUI();
@@ -433,7 +433,7 @@ function handleAddDish(e) {
   saveDishes();
   dishForm.reset();
   addDishModal.classList.add('hidden');
-  showToast(`🎉 Added "${newDish.name}" (₹${newDish.price}) to menu!`);
+  showToast(`ðŸŽ‰ Added "${newDish.name}" (â‚¹${newDish.price}) to menu!`);
   renderAdminUI();
 }
 
@@ -455,7 +455,7 @@ function updateAdminStats() {
   pendingOrdersCount.textContent = pending;
   preparingOrdersCount.textContent = preparing;
   completedOrdersCount.textContent = completed;
-  totalRevenueCount.textContent = '₹' + totalRev.toLocaleString('en-IN');
+  totalRevenueCount.textContent = 'â‚¹' + totalRev.toLocaleString('en-IN');
 
   // Compute counts for active dine-in and preorders
   const activeDinein = adminState.orders.filter(o => (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready') && o.orderType !== 'preorder').length;
@@ -528,11 +528,11 @@ function renderOrdersGrid() {
     const dateStr = new Date(order.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
     let statusClass = 'status-pending';
-    let statusLabel = '⏳ Pending Accept';
-    if (order.status === 'preparing') { statusClass = 'status-preparing'; statusLabel = '🔥 Cooking in Wok'; }
-    if (order.status === 'ready') { statusClass = 'status-ready'; statusLabel = '🛎️ Ready to Serve'; }
-    if (order.status === 'completed') { statusClass = 'status-completed'; statusLabel = '✅ Served & Completed'; }
-    if (order.status === 'cancelled') { statusClass = 'status-cancelled'; statusLabel = '❌ Cancelled'; }
+    let statusLabel = 'â³ Pending Accept';
+    if (order.status === 'preparing') { statusClass = 'status-preparing'; statusLabel = 'ðŸ”¥ Cooking in Wok'; }
+    if (order.status === 'ready') { statusClass = 'status-ready'; statusLabel = 'ðŸ›Žï¸ Ready to Serve'; }
+    if (order.status === 'completed') { statusClass = 'status-completed'; statusLabel = 'âœ… Served & Completed'; }
+    if (order.status === 'cancelled') { statusClass = 'status-cancelled'; statusLabel = 'âŒ Cancelled'; }
 
     return `
       <div class="order-card ${statusClass}" data-id="${order.id}">
@@ -546,12 +546,12 @@ function renderOrdersGrid() {
 
         <div class="order-customer-box">
           <div class="customer-info-line">
-            <span class="customer-name">👤 ${escapeHTML(order.customerName)}</span>
+            <span class="customer-name">ðŸ‘¤ ${escapeHTML(order.customerName)}</span>
           </div>
-          <div class="customer-sub">📍 ${escapeHTML(order.tableNumber || 'Table 1')} • ${order.paymentMethod === 'upi' ? '💳 UPI Paid' : '💵 Pay Counter/Table'}</div>
+          <div class="customer-sub">ðŸ“ ${escapeHTML(order.tableNumber || 'Table 1')} â€¢ ${order.paymentMethod === 'upi' ? 'ðŸ’³ UPI Paid' : 'ðŸ’µ Pay Counter/Table'}</div>
           ${order.orderType === 'preorder' ? `
             <div style="background:rgba(251,191,36,0.18);border:1px solid var(--primary-gold);color:var(--primary-gold);padding:4px 8px;border-radius:4px;font-size:0.78rem;font-weight:800;margin-top:6px;display:flex;align-items:center;gap:4px;">
-              <span>📅 ADVANCE PRE-ORDER:</span>
+              <span>ðŸ“… ADVANCE PRE-ORDER:</span>
               <span>${order.preOrderDateTime ? new Date(order.preOrderDateTime).toLocaleString([], { dateStyle:'medium', timeStyle:'short' }) : 'Scheduled Date'}</span>
             </div>
           ` : ''}
@@ -562,7 +562,7 @@ function renderOrdersGrid() {
             <div class="order-item-row">
               <span class="item-qty">${item.qty}x</span>
               <span class="item-title">${escapeHTML(item.name)}</span>
-              <span class="item-price">₹${item.price * item.qty}</span>
+              <span class="item-price">â‚¹${item.price * item.qty}</span>
             </div>
           `).join('')}
         </div>
@@ -570,7 +570,7 @@ function renderOrdersGrid() {
         <div class="order-card-footer">
           <div class="order-total-block">
             <span>Total Bill:</span>
-            <span class="total-price">₹${order.totalAmount}</span>
+            <span class="total-price">â‚¹${order.totalAmount}</span>
           </div>
 
           <div class="order-actions-row">
@@ -625,15 +625,15 @@ function renderMenuTable(query = '') {
   adminMenuTableBody.innerHTML = list.map(dish => `
     <tr class="${dish.isSoldOut ? 'row-sold-out' : ''}" data-id="${dish.id}">
       <td>
-        <div class="table-dish-title">${(dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials') ? '🐉 ' : ''}${escapeHTML(dish.name)}</div>
-        <div class="table-dish-sub">${dish.dietary === 'non-veg' ? '🔴 Non-Veg' : '🟢 Veg'} • ${dish.servings}</div>
+        <div class="table-dish-title">${(dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials') ? 'ðŸ‰ ' : ''}${escapeHTML(dish.name)}</div>
+        <div class="table-dish-sub">${dish.dietary === 'non-veg' ? 'ðŸ”´ Non-Veg' : 'ðŸŸ¢ Veg'} â€¢ ${dish.servings}</div>
       </td>
       <td><span class="category-chip">${escapeHTML(dish.category)}</span></td>
-      <td><strong>₹${dish.price}</strong></td>
-      <td>${dish.spiceLevel === '3' ? '🔥🔥🔥' : dish.spiceLevel === '2' ? '🌶️🌶️' : '🌶️'}</td>
+      <td><strong>â‚¹${dish.price}</strong></td>
+      <td>${dish.spiceLevel === '3' ? 'ðŸ”¥ðŸ”¥ðŸ”¥' : dish.spiceLevel === '2' ? 'ðŸŒ¶ï¸ðŸŒ¶ï¸' : 'ðŸŒ¶ï¸'}</td>
       <td>
         <button class="toggle-stock-btn ${dish.isSoldOut ? 'is-out' : 'is-in'}" data-action="toggle-stock">
-          ${dish.isSoldOut ? '⛔ SOLD OUT (Finished)' : '✅ Available'}
+          ${dish.isSoldOut ? 'â›” SOLD OUT (Finished)' : 'âœ… Available'}
         </button>
       </td>
       <td>
