@@ -5,7 +5,9 @@
 // Supabase Configuration
 const SUPABASE_URL = 'https://jwbjpsqdnfguzrphyxmq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3Ympwc3FkbmZndXpycGh5eG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDk2MTgsImV4cCI6MjEwMDI4NTYxOH0.kkL54Bz_iQ_jX_8_3X_qMJXnJ0JhYnlw0GBo6N7vxVs';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
@@ -246,18 +248,20 @@ function setupBroadcastListener() {
   // We'll leave local Fallback channel.
   // ðŸŒ Listen to Order Status Cloud Stream via Supabase Realtime
   try {
-    supabaseClient.channel('public:orders')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
-        const activeOrderId = localStorage.getItem('desi_to_dragon_active_order_id');
-        if (activeOrderId && payload.new.id === activeOrderId) {
-          if (payload.new.status === 'ready') {
-            showToast('âœ… Your order is ready!', 8000);
-            playReadyChimeSound();
-            localStorage.removeItem('desi_to_dragon_active_order_id');
+    if (supabaseClient) {
+      supabaseClient.channel('public:orders')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
+          const activeOrderId = localStorage.getItem('desi_to_dragon_active_order_id');
+          if (activeOrderId && payload.new.id === activeOrderId) {
+            if (payload.new.status === 'ready') {
+              showToast('✅ Your order is ready!', 8000);
+              playReadyChimeSound();
+              localStorage.removeItem('desi_to_dragon_active_order_id');
+            }
           }
-        }
-      })
-      .subscribe();
+        })
+        .subscribe();
+    }
   } catch (err) {
     console.log('Supabase real-time status sync error:', err);
   }
@@ -635,9 +639,11 @@ function handleCheckoutSubmit(e) {
       timestamp: order.timestamp
     };
     
-    supabaseClient.from('orders').insert([dbOrder]).then(({ error }) => {
-      if (error) console.error('Supabase insert error:', error);
-    });
+    if (supabaseClient) {
+      supabaseClient.from('orders').insert([dbOrder]).then(({ error }) => {
+        if (error) console.error('Supabase insert error:', error);
+      });
+    }
   } catch (err) {
     console.error('Supabase insert exception:', err);
   }

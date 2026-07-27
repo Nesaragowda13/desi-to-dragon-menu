@@ -5,7 +5,9 @@
 // Supabase Configuration
 const SUPABASE_URL = 'https://jwbjpsqdnfguzrphyxmq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3Ympwc3FkbmZndXpycGh5eG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDk2MTgsImV4cCI6MjEwMDI4NTYxOH0.kkL54Bz_iQ_jX_8_3X_qMJXnJ0JhYnlw0GBo6N7vxVs';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // Initial Default Menu Items with Prices
 const INITIAL_DISHES = [
@@ -175,9 +177,11 @@ function updateCloudOrderStatusMap(orderId, newStatus) {
 
   // ðŸŒ Send Status Update to Supabase Database
   try {
-    supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
-      if (error) console.error('Supabase update status error:', error);
-    });
+    if (supabaseClient) {
+      supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId).then(({ error }) => {
+        if (error) console.error('Supabase update status error:', error);
+      });
+    }
   } catch (err) {
     console.log('Supabase status fetch exception:', err);
   }
@@ -193,6 +197,7 @@ let isInitialLoad = true;
 
 async function fetchInitialSupabaseOrders() {
   try {
+    if (!supabaseClient) return;
     const { data, error } = await supabaseClient.from('orders').select('*').order('timestamp', { ascending: false });
     if (error) {
       console.error('Error fetching initial orders:', error);
@@ -251,6 +256,7 @@ async function fetchInitialSupabaseOrders() {
 
 function setupSupabaseRealtime() {
   try {
+    if (!supabaseClient) return;
     supabaseClient.channel('public:orders')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
         const dbOrder = payload.new;
