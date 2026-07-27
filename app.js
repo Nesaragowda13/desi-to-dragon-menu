@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DESI TO DRAGON - CUSTOMER ORDERING PORTAL JS
  */
 
@@ -23,7 +23,8 @@ const INITIAL_DISHES = [
   { id: "dish-12", name: "Baby Corn Manchurian", price: 99, category: "Starters", dietary: "veg", description: "Baby Corn Manchurian is a crispy and delicious Indo-Chinese dish made with golden-fried baby corn.", isSoldOut: false },
   { id: "dish-13", name: "Milk Pudding", price: 79, category: "Desserts", dietary: "veg", description: "Milk Pudding - A smooth, creamy, and lightly sweet dessert made with milk, sugar, and a setting agent, offering a rich and refreshing melt-in-the-mouth texture.", isSoldOut: false },
   { id: "dish-14", name: "Fruit Custard", price: 69, category: "Desserts", dietary: "veg", description: "A creamy and refreshing dessert made with smooth custard and a mix of fresh seasonal fruits, offering a perfect balance of sweetness and fruity flavors.", isSoldOut: false },
-  { id: "dish-15", name: "Blue Lagoon Mocktail", price: 69, category: "Drinks", dietary: "veg", description: "Blue Lagoon Mocktail: A refreshing and vibrant blue-colored drink made with blue curaçao syrup, lemonade, and ice, offering a sweet citrus flavor and a tropical taste perfect for hot days.", isSoldOut: false }
+  { id: "dish-15", name: "Blue Lagoon Mocktail", price: 69, category: "Mocktails", dietary: "veg", description: "Blue Lagoon Mocktail: A refreshing and vibrant blue-colored drink made with blue curaçao syrup, lemonade, and ice, offering a sweet citrus flavor and a tropical taste perfect for hot days.", isSoldOut: false },
+  { id: "dish-16", name: "Masala Vada", price: 30, category: "Starters", dietary: "veg", description: "Masala Vada is a crispy and golden South Indian fritter made from soaked chana dal (split chickpeas) coarsely ground and mixed with onions, green chillies, ginger, curry leaves, cumin seeds, and a medley of aromatic spices. The mixture is shaped into small patties and deep-fried until perfectly crunchy on the outside and soft inside. Recipe: Soak chana dal for 2 hrs, coarsely grind with chillies and ginger, mix with sliced onions, curry leaves, cumin, salt and coriander leaves, shape into flat rounds, and deep fry on medium heat until crisp and golden brown. Serve hot with coconut chutney.", isSoldOut: false }
 ];
 
 // Customer App State
@@ -762,13 +763,13 @@ function renderApp() {
 
   emptyState.classList.add('hidden');
 
-  const categories = ["Starters", "Mains", "Rice & Noodles", "Desserts", "Drinks"];
+  const categories = ["Starters", "Mains", "Rice & Noodles", "Desserts", "Mocktails"];
   const categoryTitleMap = {
     "Starters": "Starters & Dragon Bites",
     "Mains": "Fiery Main Course",
     "Rice & Noodles": "Noodles, Rice & Breads",
     "Desserts": "Dragon Desserts",
-    "Drinks": "Elixirs & Beverages"
+    "Mocktails": "Elixirs & Mocktails"
   };
   const categoryIconMap = {
     "Pre-Order Specials": "calendar",
@@ -776,7 +777,7 @@ function renderApp() {
     "Mains": "flame",
     "Rice & Noodles": "utensils-crossed",
     "Desserts": "cake-slice",
-    "Drinks": "glass-water"
+    "Mocktails": "glass-water"
   };
 
   let html = '';
