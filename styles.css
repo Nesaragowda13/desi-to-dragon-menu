@@ -737,19 +737,18 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.badge-veg { background: var(--diet-veg-bg); color: var(--diet-veg); border: 1px solid rgba(16, 185, 129, 0.3); }
-.badge-vegan { background: var(--diet-vegan-bg); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3); }
-.badge-nonveg { background: var(--diet-nonveg-bg); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-.badge-fusion { background: var(--diet-fusion-bg); color: var(--primary-gold); border: 1px solid rgba(251, 191, 36, 0.4); }
+.badge-veg { background: #e6f9f0; color: #16a34a; border: 1px solid #bbf7d0; }
+.badge-vegan { background: #ecfdf5; color: #059669; border: 1px solid #6ee7b7; }
+.badge-nonveg { background: #fff1f2; color: #dc2626; border: 1px solid #fecaca; }
+.badge-fusion { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
 
 .dish-desc {
   font-size: 0.88rem;

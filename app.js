@@ -823,12 +823,12 @@ function createDishCardHTML(dish) {
   }
 
   let fusionBadgeHTML = dish.fusionType === 'fusion' 
-    ? `<span class="diet-badge badge-fusion">ðŸ‰ Fusion</span>`
-    : `<span class="diet-badge badge-veg" style="color:var(--primary-gold);border-color:var(--primary-gold);">ðŸ‡®ðŸ‡³ Desi</span>`;
+    ? `<span class="diet-badge badge-fusion">ðŸ ‰ Fusion</span>`
+    : `<span class="diet-badge badge-fusion">🇮🇳 Desi</span>`;
 
   let spiceText = '';
-  if (dish.spiceLevel === '1') spiceText = 'ðŸŒ¶ï¸ Medium';
-  if (dish.spiceLevel === '2') spiceText = 'ðŸŒ¶ï¸ðŸŒ¶ï¸ Dragon Hot';
+  if (dish.spiceLevel === '1') spiceText = 'ðŸŒ¶ï¸  Medium';
+  if (dish.spiceLevel === '2') spiceText = 'ðŸŒ¶ï¸ ðŸŒ¶ï¸  Dragon Hot';
   if (dish.spiceLevel === '3') spiceText = 'ðŸ”¥ðŸ”¥ðŸ”¥ Inferno';
 
   const cartItem = potluckState.cart.find(c => c.id === dish.id);
