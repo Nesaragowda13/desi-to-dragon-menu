@@ -670,8 +670,8 @@ function handleCheckoutSubmit(e) {
 function renderCartDrawer() {
   const subtotal = potluckState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  cartSubtotalText.textContent = 'â‚¹' + subtotal;
-  cartGrandTotalText.textContent = 'â‚¹' + subtotal;
+  cartSubtotalText.textContent = '\u20B9' + subtotal;
+  cartGrandTotalText.textContent = '\u20B9' + subtotal;
 
   if (potluckState.cart.length === 0) {
     cartItemsList.innerHTML = `
@@ -950,7 +950,7 @@ function updateCartBadges() {
   if (floatingCartBtn) {
     if (totalCount > 0) {
       floatingCartCount.textContent = totalCount;
-      floatingCartTotal.textContent = 'â‚¹' + totalAmount;
+      floatingCartTotal.textContent = '\u20B9' + totalAmount;
       floatingCartBtn.classList.remove('hidden');
     } else {
       floatingCartBtn.classList.add('hidden');

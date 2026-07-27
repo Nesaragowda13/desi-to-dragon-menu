@@ -455,7 +455,7 @@ function updateAdminStats() {
   pendingOrdersCount.textContent = pending;
   preparingOrdersCount.textContent = preparing;
   completedOrdersCount.textContent = completed;
-  totalRevenueCount.textContent = 'â‚¹' + totalRev.toLocaleString('en-IN');
+  totalRevenueCount.textContent = '\u20B9' + totalRev.toLocaleString('en-IN');
 
   // Compute counts for active dine-in and preorders
   const activeDinein = adminState.orders.filter(o => (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready') && o.orderType !== 'preorder').length;
