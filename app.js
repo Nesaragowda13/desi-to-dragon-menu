@@ -669,7 +669,7 @@ function renderCartDrawer() {
     <div class="cart-item-row" data-id="${item.id}">
       <div class="cart-item-info">
         <span class="cart-item-title">${escapeHTML(item.name)}</span>
-        <span class="cart-item-price">â‚¹${item.price} x ${item.qty} = â‚¹${item.price * item.qty}</span>
+        <span class="cart-item-price">&#8377;${item.price} x ${item.qty} = &#8377;${item.price * item.qty}</span>
       </div>
       <div class="cart-item-stepper">
         <button class="stepper-btn" data-action="minus">-</button>
@@ -815,27 +815,23 @@ function renderApp() {
 function createDishCardHTML(dish) {
   let dietBadgeHTML = '';
   if (dish.dietary === 'veg') {
-    dietBadgeHTML = `<span class="diet-badge badge-veg">ðŸŸ¢ Veg</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-veg">Veg</span>`;
   } else if (dish.dietary === 'vegan') {
-    dietBadgeHTML = `<span class="diet-badge badge-vegan">ðŸŒ± Vegan</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-vegan">Vegan</span>`;
   } else if (dish.dietary === 'non-veg') {
-    dietBadgeHTML = `<span class="diet-badge badge-nonveg">ðŸ”´ Non-Veg</span>`;
+    dietBadgeHTML = `<span class="diet-badge badge-nonveg">Non-Veg</span>`;
   }
 
-  let fusionBadgeHTML = dish.fusionType === 'fusion' 
-    ? `<span class="diet-badge badge-fusion">ðŸ ‰ Fusion</span>`
-    : `<span class="diet-badge badge-fusion">🇮🇳 Desi</span>`;
-
   let spiceText = '';
-  if (dish.spiceLevel === '1') spiceText = 'ðŸŒ¶ï¸  Medium';
-  if (dish.spiceLevel === '2') spiceText = 'ðŸŒ¶ï¸ ðŸŒ¶ï¸  Dragon Hot';
-  if (dish.spiceLevel === '3') spiceText = 'ðŸ”¥ðŸ”¥ðŸ”¥ Inferno';
+  if (dish.spiceLevel === '1') spiceText = '🌶️ Medium';
+  if (dish.spiceLevel === '2') spiceText = '🌶️🌶️ Dragon Hot';
+  if (dish.spiceLevel === '3') spiceText = '🔥🔥🔥 Inferno';
 
   const cartItem = potluckState.cart.find(c => c.id === dish.id);
   const qtyInCart = cartItem ? cartItem.qty : 0;
 
   const isDragonSpecial = dish.name.toLowerCase().includes('dragon') || dish.fusionType === 'fusion' || dish.category === 'Pre-Order Specials';
-  const dragonDecor = isDragonSpecial ? '<span class="dragon-decor-badge">ðŸ‰</span>' : '';
+  const dragonDecor = isDragonSpecial ? '<span class="dragon-decor-badge">🐲</span>' : '';
 
   return `
     <article class="dish-card ${dish.isSoldOut ? 'sold-out-card' : ''}" data-id="${dish.id}">
@@ -845,14 +841,13 @@ function createDishCardHTML(dish) {
         <div class="dish-header">
           <h3 class="dish-name">${dragonDecor}${escapeHTML(dish.name)}</h3>
           <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
-            ${fusionBadgeHTML}
             ${dietBadgeHTML}
           </div>
         </div>
         ${dish.description ? `<p class="dish-desc">${escapeHTML(dish.description)}</p>` : ''}
         
         <div class="dish-details-row">
-          <span class="detail-tag" style="color:var(--primary-gold);font-weight:700;font-size:1rem;">â‚¹${dish.price}</span>
+          <span class="detail-tag" style="color:var(--primary-gold);font-weight:700;font-size:1rem;">&#8377;${dish.price}</span>
           <span class="detail-tag"><i data-lucide="users" style="width:14px;height:14px;"></i> ${escapeHTML(dish.servings || '1 portion')}</span>
           ${spiceText ? `<span class="detail-tag" style="color:var(--primary-flame);font-weight:700;">${spiceText}</span>` : ''}
         </div>
@@ -860,7 +855,7 @@ function createDishCardHTML(dish) {
 
       <div class="dish-footer">
         <div class="price-block">
-          <span class="price-val">â‚¹${dish.price}</span>
+          <span class="price-val">&#8377;${dish.price}</span>
         </div>
 
         <div class="card-actions">
@@ -1017,14 +1012,14 @@ function renderMyOrdersHistory() {
           ${histOrder.items.map(item => `
             <div style="display:flex; justify-content:space-between;">
               <span style="color:#ffffff;">${item.qty}x ${escapeHTML(item.name)}</span>
-              <span style="color:var(--primary-gold);">â‚¹${item.price * item.qty}</span>
+              <span style="color:var(--primary-gold);">&#8377;${item.price * item.qty}</span>
             </div>
           `).join('')}
         </div>
         
         <div style="border-top:1px dashed var(--border-subtle); margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:800; color:var(--primary-gold); font-size: 1.05rem;">
           <span>Total amount:</span>
-          <span>â‚¹${histOrder.totalAmount}</span>
+          <span>&#8377;${histOrder.totalAmount}</span>
         </div>
       </div>
     `;

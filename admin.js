@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DESI TO DRAGON - OWNER ADMIN DASHBOARD JS
  */
 
@@ -433,7 +433,7 @@ function handleAddDish(e) {
   saveDishes();
   dishForm.reset();
   addDishModal.classList.add('hidden');
-  showToast(`ðŸŽ‰ Added "${newDish.name}" (â‚¹${newDish.price}) to menu!`);
+  showToast(`ðŸŽ‰ Added "${newDish.name}" (&#8377;${newDish.price}) to menu!`);
   renderAdminUI();
 }
 
@@ -562,7 +562,7 @@ function renderOrdersGrid() {
             <div class="order-item-row">
               <span class="item-qty">${item.qty}x</span>
               <span class="item-title">${escapeHTML(item.name)}</span>
-              <span class="item-price">â‚¹${item.price * item.qty}</span>
+              <span class="item-price">&#8377;${item.price * item.qty}</span>
             </div>
           `).join('')}
         </div>
@@ -570,7 +570,7 @@ function renderOrdersGrid() {
         <div class="order-card-footer">
           <div class="order-total-block">
             <span>Total Bill:</span>
-            <span class="total-price">â‚¹${order.totalAmount}</span>
+            <span class="total-price">&#8377;${order.totalAmount}</span>
           </div>
 
           <div class="order-actions-row">
@@ -629,7 +629,7 @@ function renderMenuTable(query = '') {
         <div class="table-dish-sub">${dish.dietary === 'non-veg' ? 'ðŸ”´ Non-Veg' : 'ðŸŸ¢ Veg'} â€¢ ${dish.servings}</div>
       </td>
       <td><span class="category-chip">${escapeHTML(dish.category)}</span></td>
-      <td><strong>â‚¹${dish.price}</strong></td>
+      <td><strong>&#8377;${dish.price}</strong></td>
       <td>${dish.spiceLevel === '3' ? 'ðŸ”¥ðŸ”¥ðŸ”¥' : dish.spiceLevel === '2' ? 'ðŸŒ¶ï¸ðŸŒ¶ï¸' : 'ðŸŒ¶ï¸'}</td>
       <td>
         <button class="toggle-stock-btn ${dish.isSoldOut ? 'is-out' : 'is-in'}" data-action="toggle-stock">
