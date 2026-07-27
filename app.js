@@ -104,26 +104,45 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function sanitizeVegDishes(dishes) {
+  if (!Array.isArray(dishes)) return;
+  dishes.forEach(d => {
+    if (d.dietary === 'veg' || d.dietary === 'vegan') {
+      if (d.description) {
+        d.description = d.description
+          .replace(/,?\s*meat,?\s*/gi, ' ')
+          .replace(/Egg and often chicken/gi, 'fresh vegetables')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+    }
+  });
+}
+
 function loadDishesFromStorage() {
-  const saved = localStorage.getItem('desi_to_dragon_dishes_v6');
+  const saved = localStorage.getItem('desi_to_dragon_dishes_v8');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
         potluckState.dishes = parsed;
         INITIAL_DISHES.forEach(init => {
-          if (!potluckState.dishes.some(d => d.id === init.id)) {
+          const idx = potluckState.dishes.findIndex(d => d.id === init.id);
+          if (idx === -1) {
             potluckState.dishes.push(init);
+          } else {
+            potluckState.dishes[idx].description = init.description;
           }
         });
       } else {
-        potluckState.dishes = INITIAL_DISHES;
+        potluckState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES));
       }
-    } catch (e) { potluckState.dishes = INITIAL_DISHES; }
+    } catch (e) { potluckState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES)); }
   } else {
-    potluckState.dishes = INITIAL_DISHES;
+    potluckState.dishes = JSON.parse(JSON.stringify(INITIAL_DISHES));
   }
-  localStorage.setItem('desi_to_dragon_dishes_v6', JSON.stringify(potluckState.dishes));
+  sanitizeVegDishes(potluckState.dishes);
+  localStorage.setItem('desi_to_dragon_dishes_v8', JSON.stringify(potluckState.dishes));
 }
 
 function updateCustomerDishes(newDishes) {

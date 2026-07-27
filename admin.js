@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadDataFromStorage() {
   // Load Dishes
-  const savedDishes = localStorage.getItem('desi_to_dragon_dishes_v6');
+  const savedDishes = localStorage.getItem('desi_to_dragon_dishes_v8');
   if (savedDishes) {
     try { 
       adminState.dishes = JSON.parse(savedDishes); 
@@ -145,7 +145,7 @@ function loadDataFromStorage() {
 }
 
 function saveDishes() {
-  localStorage.setItem('desi_to_dragon_dishes_v6', JSON.stringify(adminState.dishes));
+  localStorage.setItem('desi_to_dragon_dishes_v8', JSON.stringify(adminState.dishes));
   if (syncChannel) syncChannel.postMessage({ type: 'DISHES_UPDATED', dishes: adminState.dishes });
 
   // ðŸŒ Broadcast Dish & Stock Changes to Cloud Stream
