@@ -450,18 +450,35 @@ function renderAdminUI() {
   if (window.lucide) lucide.createIcons();
 }
 
+function isTodayDate(timestamp) {
+  if (!timestamp) return true;
+  const d = new Date(timestamp);
+  const today = new Date();
+  return d.getDate() === today.getDate() &&
+         d.getMonth() === today.getMonth() &&
+         d.getFullYear() === today.getFullYear();
+}
+
 function updateAdminStats() {
+  const todayBadge = document.getElementById('todayDateDisplay');
+  if (todayBadge) {
+    todayBadge.textContent = new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  const todayOrders = adminState.orders.filter(o => isTodayDate(o.timestamp));
+
   const pending = adminState.orders.filter(o => o.status === 'pending').length;
   const preparing = adminState.orders.filter(o => o.status === 'preparing').length;
   const completed = adminState.orders.filter(o => o.status === 'completed').length;
-  const totalRev = adminState.orders
+  
+  const todayRev = todayOrders
     .filter(o => o.status === 'completed' || o.status === 'preparing' || o.status === 'pending' || o.status === 'ready')
     .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   pendingOrdersCount.textContent = pending;
   preparingOrdersCount.textContent = preparing;
   completedOrdersCount.textContent = completed;
-  totalRevenueCount.textContent = '\u20B9' + totalRev.toLocaleString('en-IN');
+  totalRevenueCount.textContent = '\u20B9' + todayRev.toLocaleString('en-IN');
 
   // Compute counts for active dine-in and preorders
   const activeDinein = adminState.orders.filter(o => (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready') && o.orderType !== 'preorder').length;
